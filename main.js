@@ -5,7 +5,7 @@ import floor from './floor.js';
 import Hero from './hero.js';
 import { initGameState, gameLimit } from './gameState.js';
 
-let scene, camera, renderer, backLight;
+let scene, camera, clock, renderer, backLight;
 
 let delta = 0;
 let monsterAcceleration = 0.004;
@@ -83,6 +83,8 @@ function initScreenAnd3D() {
            handleEscape();
        }
     });
+
+    clock = new THREE.Clock();
 }
 const closeModalButtons = document.querySelectorAll('[data-close-button]')
 const overlay = document.getElementById('overlay')
