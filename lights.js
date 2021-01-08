@@ -1,6 +1,6 @@
 import * as THREE from 'https://unpkg.com/three/build/three.module.js';
 
-export let createShadowLight = () => {
+function createShadowLight() {
     const shadowLight = new THREE.DirectionalLight(0xffffff, 1);
     shadowLight.position.set(-30, 40, 20);
 
@@ -11,9 +11,11 @@ export let createShadowLight = () => {
     shadowLight.shadow.camera.right = 400;
     shadowLight.shadow.camera.top = 400;
     shadowLight.shadow.camera.bottom = -400;
-    shadowLight.shadow.camera.near = .1;
+    shadowLight.shadow.camera.near = 1;
     shadowLight.shadow.camera.far = 2000;
     shadowLight.shadow.mapSize.width = shadowLight.shadow.mapSize.height = 2048;
 
     return shadowLight;
 }
+
+export let shadowLight = createShadowLight();
