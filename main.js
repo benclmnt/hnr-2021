@@ -125,6 +125,7 @@ function createObstacle() {
     obstacle.mesh.position.y = floorRadius + 4;
     obstacle.nod();
     scene.add(obstacle.mesh);
+    console.log("done")
 }
 
 function loop() {
@@ -307,8 +308,6 @@ function replay() {
     gsap.killTweensOf(monster.head.rotation);
     gsap.killTweensOf(monster.eyeL.scale);
     gsap.killTweensOf(monster.eyeR.scale);
-
-    //gsap.killTweensOf(hero.head.rotation);
 
     monster.tail.rotation.y = 0;
 
