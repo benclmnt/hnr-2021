@@ -22,9 +22,9 @@ const fov = 50; // field of view
 let cameraPosGame = 160;
 
 // characters
-let hero;
+let hero, monster;
 
-let fieldGameOver, fieldDistance;
+let fieldGameOver, fieldHomePage, fieldDistance;
 
 // game status
 let levelInterval; // increase level interval
@@ -100,7 +100,10 @@ function loop() {
     }
 
     renderer.render(scene, camera);
-    requestAnimationFrame(loop);
+
+    if (state.gameStatus != "paused") {
+        requestAnimationFrame(loop);
+    }
 }
 
 /**
@@ -199,6 +202,7 @@ init();
 function initUI() {
     fieldDistance = document.getElementById("distValue");
     fieldGameOver = document.getElementById("gameoverInst");
+    fieldHomePage = document.getElementById("homePage")
 }
 
 function initListeners() {
@@ -212,6 +216,8 @@ function initListeners() {
         }
     });
     const closeModalButtons = document.querySelectorAll('[data-close-button]')
+    const restartGameButtons = document.querySelectorAll('[data-restart-button]')
+    const quitGameButtons = document.querySelectorAll('[data-quit-button]')
     const overlay = document.getElementById('overlay')
 
     closeModalButtons.forEach(button => {
@@ -222,6 +228,29 @@ function initListeners() {
         })
     })
 
+    restartGameButtons.forEach(button => {
+        button.addEventListener('click', () => {
+            const modal = button.closest('.modal')
+            console.log("reset button pressed")
+            closeModal(modal)
+            clearInterval(levelInterval)
+            resetGameDefault()
+            clock.start()
+            loop()
+        })
+    })
+    
+    quitGameButtons.forEach(button => {
+        button.addEventListener('click', () => {
+            const modal = button.closest('.modal')
+            closeModal(modal)
+            clearInterval(levelInterval)
+            resetGameDefault()
+            clock.start()
+            loop()
+            homePage()
+        })
+    })
 }
 
 function openModal(modal) {
@@ -266,4 +295,17 @@ function handleMouseDown(event) {
     } else if (state.gameStatus == "readyToReplay") {
         replay();
     }
+}
+
+function homePage() {
+    fieldHomePage.className = "show";
+    state.gameStatus = "homePage";
+    monster.sit();
+    hero.hang();
+    monster.heroHolder.add(hero.mesh);
+    TweenMax.to(this, 1, { speed: 0 });
+    TweenMax.to(camera.position, 3, { z: cameraPosGameOver, y: 60, x: -30 });
+    carrot.mesh.visible = false;
+    obstacle.mesh.visible = false;
+    clearInterval(levelInterval);
 }
