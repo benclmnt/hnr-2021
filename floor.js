@@ -11,16 +11,16 @@ function createFloor() {
             specular: 0x000000,
             shininess: 1,
             transparent: true,
-            opacity: .5
-        })
+            opacity: 0.5,
+        }),
     );
 
     floorShadow.receiveShadow = true;
 
     // floorGrass is a copy of floorShadow without opacity and transparency
     const floorGrass = new THREE.Mesh(
-        new THREE.SphereGeometry(floorRadius - .5, 50, 50),
-        new THREE.MeshBasicMaterial({ color: Colors.green })
+        new THREE.SphereGeometry(floorRadius - 0.5, 50, 50),
+        new THREE.MeshBasicMaterial({ color: Colors.green }),
     );
 
     floorGrass.receiveShadow = false;

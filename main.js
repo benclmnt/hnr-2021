@@ -13,14 +13,14 @@ let malusClearColor = 0xb44b39;
 let malusClearAlpha = 0;
 
 // scene background
-let sceneBackgroundColor = 0xAAAAAA;
+let sceneBackgroundColor = 0xaaaaaa;
 let floorRadius = 200;
 
 // camera variables
 const nearPlane = 1;
 const farPlane = 2000;
 const fov = 50; // field of view
-let cameraPosGame = 160;
+let cameraPosGameOver = 160;
 
 // characters
 let hero, monster;
@@ -47,9 +47,9 @@ function initScreenAnd3D() {
         fov,
         WIDTH / HEIGHT,
         nearPlane,
-        farPlane
+        farPlane,
     );
-    camera.position.set(0, 30, cameraPosGame);
+    camera.position.set(0, 30, cameraPosGameOver);
     camera.lookAt(new THREE.Vector3(0, 30, 0));
 
     const canvas = document.getElementById('world');
@@ -74,7 +74,7 @@ function initScreenAnd3D() {
 // CREATE COMPONENTS
 
 function createLights() {
-    const globalLight = new THREE.AmbientLight(0xffffff, .9);
+    const globalLight = new THREE.AmbientLight(0xffffff, 0.9);
     scene.add(globalLight);
     scene.add(shadowLight);
 }
@@ -102,8 +102,8 @@ function loop() {
     state.delta = clock.getDelta();
     updateFloorRotation();
 
-    if (state.gameStatus == "play") {
-        if (hero.status == "running") {
+    if (state.gameStatus == 'play') {
+        if (hero.status == 'running') {
             hero.run();
         }
         updateDistance();
@@ -112,7 +112,7 @@ function loop() {
 
     renderer.render(scene, camera);
 
-    if (state.gameStatus != "paused") {
+    if (state.gameStatus != 'paused') {
         requestAnimationFrame(loop);
     }
 }
@@ -133,7 +133,9 @@ function updateDistance() {
 }
 
 function updateFloorRotation() {
-    state.floorRotation = (state.floorRotation + state.delta * .03 * state.speed) % (Math.PI * 2);
+    state.floorRotation =
+        (state.floorRotation + state.delta * 0.03 * state.speed) %
+        (Math.PI * 2);
     floor.rotation.z = state.floorRotation;
 }
 
@@ -153,7 +155,7 @@ function updateMonsterPosition() {
 
 function resetGameDefault() {
     if (!hero) {
-        throw Error("Hero not found!!");
+        throw Error('Hero not found!!');
     }
 
     scene.add(hero.mesh);
@@ -162,7 +164,7 @@ function resetGameDefault() {
 
     state.reset();
 
-    hero.status = "running";
+    hero.status = 'running';
     hero.nod();
 
     // audio.play();
@@ -175,17 +177,20 @@ function resetGameDefault() {
 var firs = new THREE.Group();
 
 function createFirs() {
-
     var nTrees = 100;
     for (var i = 0; i < nTrees; i++) {
-        var phi = i * (Math.PI * 2) / nTrees;
+        var phi = (i * (Math.PI * 2)) / nTrees;
         var theta = Math.PI / 2;
-        //theta += .25 + Math.random()*.3; 
-        theta += (Math.random() > .05) ? .25 + Math.random() * .3 : - .35 - Math.random() * .1;
+        //theta += .25 + Math.random()*.3;
+        theta +=
+            Math.random() > 0.05
+                ? 0.25 + Math.random() * 0.3
+                : -0.35 - Math.random() * 0.1;
 
-        var fir = new tree();
+        var fir = new Tree();
         fir.mesh.position.x = Math.sin(theta) * Math.cos(phi) * floorRadius;
-        fir.mesh.position.y = Math.sin(theta) * Math.sin(phi) * (floorRadius - 10);
+        fir.mesh.position.y =
+            Math.sin(theta) * Math.sin(phi) * (floorRadius - 10);
         fir.mesh.position.z = Math.cos(theta) * floorRadius;
 
         var vec = fir.mesh.position.clone();
@@ -195,7 +200,7 @@ function createFirs() {
     }
 }
 
-class tree {
+class Tree {
     constructor() {
         this.mesh = new THREE.Object3D();
         this.trunc = new Trunc();
@@ -216,94 +221,93 @@ function init() {
     loop();
 }
 
-
-
 init();
-
 
 /**
  * UI Utilities
  */
 
 function initUI() {
-    fieldDistance = document.getElementById("distValue");
-    fieldGameOver = document.getElementById("gameoverInst");
-    fieldHomePage = document.getElementById("homePage")
+    fieldDistance = document.getElementById('distValue');
+    fieldGameOver = document.getElementById('gameoverInst');
+    fieldHomePage = document.getElementById('homePage');
 }
 
 function initListeners() {
     window.addEventListener('resize', handleWindowResize);
     document.addEventListener('mousedown', handleMouseDown);
-    document.addEventListener("touchend", handleMouseDown);
-    document.addEventListener("keydown", function(event) {
-        if (event.key === 'Escape'){
-           // Esc key was pressed
+    document.addEventListener('touchend', handleMouseDown);
+    document.addEventListener('keydown', function (event) {
+        if (event.key === 'Escape') {
+            // Esc key was pressed
             handleEscape();
         }
     });
-    const closeModalButtons = document.querySelectorAll('[data-close-button]')
-    const restartGameButtons = document.querySelectorAll('[data-restart-button]')
-    const quitGameButtons = document.querySelectorAll('[data-quit-button]')
-    const overlay = document.getElementById('overlay')
+    const closeModalButtons = document.querySelectorAll('[data-close-button]');
+    const restartGameButtons = document.querySelectorAll(
+        '[data-restart-button]',
+    );
+    const quitGameButtons = document.querySelectorAll('[data-quit-button]');
+    const overlay = document.getElementById('overlay');
 
-    closeModalButtons.forEach(button => {
+    closeModalButtons.forEach((button) => {
         button.addEventListener('click', () => {
-            const modal = button.closest('.modal')
-            closeModal(modal)
-            handleEscape()
-        })
-    })
+            const modal = button.closest('.modal');
+            closeModal(modal);
+            handleEscape();
+        });
+    });
 
-    restartGameButtons.forEach(button => {
+    restartGameButtons.forEach((button) => {
         button.addEventListener('click', () => {
-            const modal = button.closest('.modal')
-            console.log("reset button pressed")
-            closeModal(modal)
-            clearInterval(levelInterval)
-            resetGameDefault()
-            clock.start()
-            loop()
-        })
-    })
-    
-    quitGameButtons.forEach(button => {
+            const modal = button.closest('.modal');
+            console.log('reset button pressed');
+            closeModal(modal);
+            clearInterval(levelInterval);
+            resetGameDefault();
+            clock.start();
+            loop();
+        });
+    });
+
+    quitGameButtons.forEach((button) => {
         button.addEventListener('click', () => {
-            const modal = button.closest('.modal')
-            closeModal(modal)
-            clearInterval(levelInterval)
-            resetGameDefault()
-            clock.start()
-            loop()
-            homePage()
-        })
-    })
+            const modal = button.closest('.modal');
+            closeModal(modal);
+            clearInterval(levelInterval);
+            resetGameDefault();
+            clock.start();
+            loop();
+            homePage();
+        });
+    });
 }
 
 function openModal(modal) {
-    if (modal == null) return
-    modal.classList.add('active')
-    overlay.classList.add('active')
+    if (modal == null) return;
+    modal.classList.add('active');
+    overlay.classList.add('active');
 }
 
 function closeModal(modal) {
-    if (modal == null) return
-    modal.classList.remove('active')
-    overlay.classList.remove('active')
+    if (modal == null) return;
+    modal.classList.remove('active');
+    overlay.classList.remove('active');
 }
 
 function handleEscape() {
-    if (state.gameStatus == "paused") {
+    if (state.gameStatus == 'paused') {
         const modals = document.querySelectorAll('.modal.active');
-        modals.forEach(modal => {
-            closeModal(modal)
-        })
-        state.gameStatus = "play"
-        clock.start()
-        loop()
-    } else if (state.gameStatus == "play") {
-        const modal = document.querySelector('#modal')
-        state.gameStatus = "paused"
-        openModal(modal)
+        modals.forEach((modal) => {
+            closeModal(modal);
+        });
+        state.gameStatus = 'play';
+        clock.start();
+        loop();
+    } else if (state.gameStatus == 'play') {
+        const modal = document.querySelector('#modal');
+        state.gameStatus = 'paused';
+        openModal(modal);
     }
 }
 
@@ -316,23 +320,23 @@ function handleWindowResize() {
 }
 
 function handleMouseDown(event) {
-    if (state.gameStatus == "play") {
+    if (state.gameStatus == 'play') {
         hero.jump();
-    } else if (state.gameStatus == "readyToReplay") {
+    } else if (state.gameStatus == 'readyToReplay') {
         replay();
     }
 }
 
 function homePage() {
-    fieldHomePage.className = "show";
-    state.gameStatus = "homePage";
+    fieldHomePage.className = 'show';
+    state.gameStatus = 'homePage';
     monster.sit();
     hero.hang();
     monster.heroHolder.add(hero.mesh);
     TweenMax.to(this, 1, { speed: 0 });
     TweenMax.to(camera.position, 3, { z: cameraPosGameOver, y: 60, x: -30 });
-    carrot.mesh.visible = false;
-    obstacle.mesh.visible = false;
+    // carrot.mesh.visible = false;
+    // obstacle.mesh.visible = false;
     clearInterval(levelInterval);
 }
 
@@ -344,7 +348,7 @@ function gameOver() {
     monster.heroHolder.add(hero.mesh);
     TweenMax.to(this, 1, { speed: 0 });
     TweenMax.to(camera.position, 3, { z: cameraPosGameOver, y: 60, x: -30 });
-    carrot.mesh.visible = false;
-    obstacle.mesh.visible = false;
+    // carrot.mesh.visible = false;
+    // obstacle.mesh.visible = false;
     clearInterval(levelInterval);
 }
