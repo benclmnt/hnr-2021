@@ -12,10 +12,10 @@ import state from './gameState.js';
 let scene, camera, clock, renderer;
 
 const audio = new Audio(
-    'https://raw.githubusercontent.com/kevnw/coro-jump/master/escape.mp3',
+    'https://drive.google.com/file/d/13dP8QP50JFN1L9WLDgODzmvjMf9er933/view?usp=sharing',
 );
 let monsterAcceleration = 0.004;
-let malusClearColor = 0xb44b39;
+let malusClearColor = 0x000000;
 let malusClearAlpha = 0;
 
 // scene vars
@@ -125,10 +125,10 @@ function createObstacle() {
     obstacle.mesh.position.y = floorRadius + 4;
     obstacle.nod();
     scene.add(obstacle.mesh);
-    console.log("done")
 }
 
 function loop() {
+    console.log (state.gameStatus);
     state.delta = clock.getDelta();
     updateFloorRotation();
 
@@ -155,9 +155,11 @@ function loop() {
  */
 
 function updateLevel() {
-    if (state.speed >= state.maxSpeed) return;
-    state.level++;
-    state.speed += 2;
+    if (state.gameStatus != 'paused') {
+        if (state.speed >= state.maxSpeed) return;
+        state.level++;
+        state.speed += 2;
+    }
 }
 
 function updateDistance() {
@@ -278,11 +280,11 @@ function resetGameDefault() {
     hero.mesh.rotation.y = Math.PI / 2;
 
     state.reset();
-
+    state.gameStatus = 'play';
     hero.status = 'running';
     hero.nod();
 
-    audio.play();
+    // audio.play();
     updateLevel();
     levelInterval = setInterval(updateLevel, levelUpdateFreq);
 }
@@ -392,12 +394,15 @@ function init() {
     if (state.gameStatus != 'beginning') {
         resetGameDefault();
     } else {
+        console.log("masuk sini");
+        state.gameStatus = 'play';
         homePage();
+        console.log ("STATE = " ,state.gameStatus)
     }
     loop();
 }
 
-init();
+init()
 
 /**
  * UI Utilities
@@ -508,14 +513,14 @@ function handleMouseDown(event) {
 
 function homePage() {
     fieldHomePage.className = 'show';
-    state.gameStatus = 'homePage';
+    state.gameStatus = 'play';
     monster.sit();
     hero.hang();
     monster.heroHolder.add(hero.mesh);
     gsap.to(this, 1, { speed: 0 });
     gsap.to(camera.position, 3, { z: cameraPosGameOver, y: 60, x: -30 });
-    vaccine.mesh.visible = false;
-    obstacle.mesh.visible = false;
+    vaccine.mesh.visible = true;
+    obstacle.mesh.visible = true;
     clearInterval(levelInterval);
 }
 

@@ -9,7 +9,7 @@ class GameState {
         this._monsterPos = 0.65;
         this._monsterPosTarget = 0.65;
         this._collisionBonus = 20;
-        this._collisionObstacle = 10;10
+        this._collisionObstacle = 10;
         // only getter
         this._maxSpeed = 48;
     }
