@@ -11,7 +11,7 @@ import state from './gameState.js';
 let scene, camera, clock, renderer;
 
 const audio = new Audio(
-    'https://drive.google.com/file/d/13dP8QP50JFN1L9WLDgODzmvjMf9er933/view',
+    'https://drive.google.com/file/d/13dP8QP50JFN1L9WLDgODzmvjMf9er933/view?usp=sharing',
 );
 let monsterAcceleration = 0.004;
 let malusClearColor = 0xb44b39;
@@ -353,6 +353,10 @@ function initListeners() {
         if (event.key === 'Escape') {
             // Esc key was pressed
             handleEscape();
+        }
+
+        if (event.key === ' ') { // spacebar
+            handleMouseDown(event);
         }
     });
     const closeModalButtons = document.querySelectorAll('[data-close-button]');
