@@ -1,7 +1,8 @@
 import * as THREE from 'https://unpkg.com/three/build/three.module.js';
+import * as Material from './materials.js';
+import { createShadowLight } from './lights.js';
 
-let scene, camera, renderer,
-    globalLight, shadowLight, backLight;
+let scene, camera, renderer, shadowLight, backLight;
 
 let delta = 0;
 let floorRadius = 200;
@@ -11,7 +12,7 @@ let malusClearAlpha = 0;
 let audio = new Audio('https://s3-us-west-2.amazonaws.com/s.cdpn.io/264161/Antonio-Vivaldi-Summer_01.mp3');
 
 // scene background
-let backgroundColor = 0xAAAAAA;
+let sceneBackgroundColor = 0xAAAAAA;
 
 // camera variables
 const nearPlane = 0.1;
@@ -30,7 +31,7 @@ function initScreenAnd3D() {
 
     // set global scene
     scene = new THREE.Scene();
-    scene.background = new THREE.Color(backgroundColor);
+    scene.background = new THREE.Color(sceneBackgroundColor);
     scene.fog = new THREE.Fog(0xd6eae6, 160, 350);
 
     // set global camera
@@ -61,24 +62,9 @@ function initScreenAnd3D() {
 }
 
 function createLights() {
-    globalLight = new THREE.AmbientLight(0xffffff, .9);
-
-    shadowLight = new THREE.DirectionalLight(0xffffff, 1);
-    shadowLight.position.set(-30, 40, 20);
-
-    // enable shadow casting on a light
-    shadowLight.castShadow = true;
-
-    shadowLight.shadow.camera.left = -400;
-    shadowLight.shadow.camera.right = 400;
-    shadowLight.shadow.camera.top = 400;
-    shadowLight.shadow.camera.bottom = -400;
-    shadowLight.shadow.camera.near = nearPlane;
-    shadowLight.shadow.camera.far = farPlane;
-    shadowLight.shadow.mapSize.width = shadowLight.shadow.mapSize.height = 2048;
-
+    const globalLight = new THREE.AmbientLight(0xffffff, .9);
     scene.add(globalLight);
-    scene.add(shadowLight);
+    scene.add(createShadowLight());
 }
 
 function initUI() {
