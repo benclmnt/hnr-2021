@@ -58,7 +58,7 @@ function initScreenAnd3D() {
     renderer.shadowMap.enabled = true;
 
     // event listeners
-    window.addEventListener('resize', handleWindowResize);
+    window.addEventListener('resize', handleWindowResize, false);
 }
 
 function createLights() {
@@ -76,18 +76,20 @@ function initUI() {
     fieldGameOver = document.getElementById("gameoverInst");
 }
 
-function render(time) {
-    renderer.render(scene, camera);
-}
-
 // utilities
-function handleWindowResize(camera) {
+
+function handleWindowResize() {
     const HEIGHT = window.innerHeight;
     const WIDTH = window.innerWidth;
     console.log(HEIGHT, WIDTH);
     renderer.setSize(WIDTH, HEIGHT);
     camera.aspect = WIDTH / HEIGHT;
-    // camera.updateProjectionMatrix();
+    camera.updateProjectionMatrix();
+}
+
+function loop() {
+    renderer.render(scene, camera);
+    requestAnimationFrame(loop);
 }
 
 function init(event) {
@@ -96,7 +98,7 @@ function init(event) {
     createLights();
     createFloor();
     initUI();
-    render();
+    loop();
 }
 
 init();
