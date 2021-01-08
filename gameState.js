@@ -1,53 +1,87 @@
 class GameState {
     constructor() {
-        this._delta = 0,
-        this._level = 1,
-        this._distance = 0,
-        this._speed = 5,
-        this._gameStatus = "play",
-        this._floorRotation = 0,
-        this._monsterPos = .65,
-        this._monsterPosTarget = .65
+        this._delta = 0;
+        this._level = 1;
+        this._distance = 0;
+        this._speed = 5;
+        this._gameStatus = 'play';
+        this._floorRotation = 0;
+        this._monsterPos = 0.65;
+        this._monsterPosTarget = 0.65;
 
         // only getter
         this._maxSpeed = 48;
     }
 
-    get maxSpeed() { return this._maxSpeed; }
+    get maxSpeed() {
+        return this._maxSpeed;
+    }
 
-    set delta(val) { this._delta = val; }
-    get delta() { return this._delta; }
+    set delta(val) {
+        this._delta = val;
+    }
+    get delta() {
+        return this._delta;
+    }
 
-    set level(val) { this._level = val; }
-    get level() { return this._level; }
+    set level(val) {
+        this._level = val;
+    }
+    get level() {
+        return this._level;
+    }
 
-    set distance(val) { this._distance = val; }
-    get distance() { return this._distance; }
+    set distance(val) {
+        this._distance = val;
+    }
+    get distance() {
+        return this._distance;
+    }
 
-    set speed(val) { this._speed = val; }
-    get speed() { return this._speed; }
+    set speed(val) {
+        this._speed = val;
+    }
+    get speed() {
+        return this._speed;
+    }
 
-    set gameStatus(val) { this._gameStatus = val; }
-    get gameStatus() { return this._gameStatus; }
+    set gameStatus(val) {
+        this._gameStatus = val;
+    }
+    get gameStatus() {
+        return this._gameStatus;
+    }
 
-    set floorRotation(val) { this._floorRotation = val; }
-    get floorRotation() { return this._floorRotation; }
+    set floorRotation(val) {
+        this._floorRotation = val;
+    }
+    get floorRotation() {
+        return this._floorRotation;
+    }
 
-    set monsterPos(val) { this._monsterPos = val; }
-    get monsterPos() { return this._monsterPos; }
+    set monsterPos(val) {
+        this._monsterPos = val;
+    }
+    get monsterPos() {
+        return this._monsterPos;
+    }
 
-    set monsterPosTarget(val) { this._monsterPosTarget = val; }
-    get monsterPosTarget() { return this._monsterPosTarget; }
+    set monsterPosTarget(val) {
+        this._monsterPosTarget = val;
+    }
+    get monsterPosTarget() {
+        return this._monsterPosTarget;
+    }
 
     reset() {
-        this._delta = 0,
-        this._level = 1,
-        this._distance = 0,
-        this._speed = 5,
-        this._gameStatus = "play",
-        this._floorRotation = 0,
-        this._monsterPos = .65,
-        this._monsterPosTarget = .65
+        this._delta = 0;
+        this._level = 1;
+        this._distance = 0;
+        this._speed = 5;
+        this._gameStatus = 'play';
+        this._floorRotation = 0;
+        this._monsterPos = 0.65;
+        this._monsterPosTarget = 0.65;
     }
 }
 

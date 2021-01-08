@@ -20,7 +20,7 @@ export let PhongGreen = new THREE.MeshPhongMaterial({
 });
 
 export let PhongPink = new THREE.MeshPhongMaterial({
-    color: 0xdc5f45,//0xb43b29,//0xff5b49,
+    color: 0xdc5f45, //0xb43b29,//0xff5b49,
     shininess: 0,
     flatShading: true,
 });
