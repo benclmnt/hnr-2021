@@ -3,6 +3,7 @@ import * as Material from './materials.js';
 import { shadowLight } from './lights.js';
 import floor from './floor.js';
 import Hero from './hero.js';
+import { initGameState, gameLimit } from './gameState.js';
 
 let scene, camera, renderer, backLight;
 
@@ -26,6 +27,19 @@ let cameraPosGameOver = 260;
 let hero, monster;
 
 let fieldGameOver, fieldDistance;
+
+// game status
+let {
+    speed,
+    distance,
+    level,
+    gameStatus,
+    floorRotation,
+    monsterPos,
+    monsterPosTarget } = initGameState;
+let { maxSpeed } = gameLimit;
+let levelInterval;
+let levelUpdateFreq = 3000; // 3s
 
 //INIT THREE JS, SCREEN AND MOUSE EVENTS
 
@@ -131,7 +145,45 @@ function initUI() {
     fieldGameOver = document.getElementById("gameoverInst");
 }
 
-// utilities
+function loop() {
+    renderer.render(scene, camera);
+    requestAnimationFrame(loop);
+}
+
+// game
+function updateLevel() {
+    if (speed >= maxSpeed) return;
+    level++;
+    speed += 2;
+}
+
+function resetGameDefault() {
+    if (!hero) {
+        throw Error("Hero not found!!");
+    }
+
+    scene.add(hero.mesh);
+    hero.mesh.position.set(0, 0, 0);
+    hero.mesh.rotation.y = Math.PI / 2;
+
+    speed = initGameState.speed;
+    level = initGameState.level - 1;
+    distance = initGameState.distance;
+    gameStatus = initGameState.gameStatus;
+
+    monsterPos = initGameState.monsterPos;
+    monsterPosTarget = initGameState.monsterPosTarget;
+
+    hero.status = "running";
+    hero.nod();
+
+    // audio.play();
+    updateLevel();
+    levelInterval = setInterval(updateLevel, levelUpdateFreq);
+
+}
+
+// listeners utilities
 
 function handleWindowResize() {
     const HEIGHT = window.innerHeight;
@@ -141,10 +193,7 @@ function handleWindowResize() {
     camera.updateProjectionMatrix();
 }
 
-function loop() {
-    renderer.render(scene, camera);
-    requestAnimationFrame(loop);
-}
+// main function
 
 function init(event) {
     initScreenAnd3D();
@@ -153,6 +202,7 @@ function init(event) {
     createFloor();
     createHero();
     initUI();
+    resetGameDefault();
     loop();
 }
 
