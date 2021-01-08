@@ -3,7 +3,5 @@ import * as Material from './materials.js';
 import state from './gameState.js';
 
 export default class Carrot {
-  constructor() {
-
-  }
+    constructor() {}
 }
