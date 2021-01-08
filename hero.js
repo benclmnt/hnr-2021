@@ -61,11 +61,11 @@ export default class Hero {
         this.handL.position.x = - this.handR.position.x;
         this.body.add(this.handL);
 
-        let pawBGeom = new THREE.CylinderGeometry(1.5, 1.3, 5, 20, 1);
+        let pawBGeom = new THREE.CylinderGeometry(1.3, 1.3, 5, 20, 1);
         this.pawBL = new THREE.Mesh(pawBGeom, Material.PhongLightBrown);
         this.pawBL.position.y = 1;
         this.pawBL.position.z = 1;
-        this.pawBL.position.x = 3;
+        this.pawBL.position.x = 2;
         this.pawBL.castShadow = true;
         this.body.add(this.pawBL);
 
@@ -96,25 +96,22 @@ export default class Hero {
 
         // BODY
 
-        this.body.position.y = 6 + Math.sin(t - Math.PI / 2) * amp;
-        this.body.rotation.x = .2 + Math.sin(t - Math.PI / 2) * amp * .1;
+        this.body.position.y = 3 + Math.sin(t - Math.PI / 2) * amp * .5;
 
-        this.torso.rotation.x = Math.sin(t - Math.PI / 2) * amp * .1;
-        this.torso.position.y = 7 + Math.sin(t - Math.PI / 2) * amp * .5;
+        this.body.rotation.x = Math.sin(t - Math.PI / 2) * amp * .1;
 
         // BACK RIGHT PAW
-        this.pawBR.position.y = 1.5 + Math.sin(Math.PI + t) * amp;
-        this.pawBR.rotation.x = Math.cos(t + Math.PI * 1.5) * Math.PI / 3;
+        this.pawBR.position.y = .5 + Math.sin(t) * amp/4;
+        this.pawBR.rotation.x = Math.cos(t) * Math.PI / 4;
 
-
-        this.pawBR.position.z = - Math.cos(Math.PI + t) * amp;
+        this.pawBR.position.z = - Math.cos(t) * amp /2;
 
         // BACK LEFT PAW
-        this.pawBL.position.y = 1.5 + Math.sin(Math.PI + t) * amp;
-        this.pawBL.rotation.x = Math.cos(t + Math.PI * 1.5) * Math.PI / 3;
+        this.pawBL.position.y = .5 + Math.sin(Math.PI + t) * amp/4;
+        this.pawBL.rotation.x = Math.cos(t + Math.PI) / 2;
 
 
-        this.pawBL.position.z = - Math.cos(Math.PI + t) * amp;
+        this.pawBL.position.z = - Math.cos(Math.PI + t) * amp/2;
     }
 
     jump() {
@@ -124,8 +121,13 @@ export default class Hero {
         let totalSpeed = 10 / state.speed;
         let jumpHeight = 45;
 
-        TweenMax.to(this.pawBL.rotation, totalSpeed, { x: "+=.7", ease: Back.easeOut });
-        TweenMax.to(this.pawBR.rotation, totalSpeed, { x: "-=.7", ease: Back.easeOut });
+        TweenMax.to(this.body.rotation, totalSpeed, { x: Math.PI*(1.9), ease: Back.easeOut });
+
+        TweenMax.to(this.handL.rotation, totalSpeed, { x: "+=.5", ease: Back.easeOut });
+        TweenMax.to(this.handR.rotation, totalSpeed, { x: "-=.5", ease: Back.easeOut });
+
+        TweenMax.to(this.pawBL.rotation, totalSpeed, { x: "+=.2", ease: Back.easeOut });
+        TweenMax.to(this.pawBR.rotation, totalSpeed, { x: "-=.2", ease: Back.easeOut });
 
         TweenMax.to(this.mesh.position, totalSpeed / 2, { y: jumpHeight, ease: Power2.easeOut });
         TweenMax.to(this.mesh.position, totalSpeed / 2, {
