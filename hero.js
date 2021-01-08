@@ -171,9 +171,6 @@ export default class Hero {
         let sp = 1;
         let ease = Power4.easeOut;
 
-        TweenMax.killTweensOf(this.eyeL.scale);
-        TweenMax.killTweensOf(this.eyeR.scale);
-
         this.body.rotation.x = 0;
         this.torso.rotation.x = 0;
         this.body.position.y = 0;
@@ -183,15 +180,9 @@ export default class Hero {
         TweenMax.to(this.mesh.position, sp, { y: -7, z: 6, ease: ease });
         TweenMax.to(this.head.rotation, sp, { x: Math.PI / 6, ease: ease, onComplete: function () { _this.nod(); } });
 
-        TweenMax.to(this.earL.rotation, sp, { x: Math.PI / 3, ease: ease });
-        TweenMax.to(this.earR.rotation, sp, { x: Math.PI / 3, ease: ease });
-
         TweenMax.to(this.pawFL.position, sp, { y: -1, z: 3, ease: ease });
         TweenMax.to(this.pawFR.position, sp, { y: -1, z: 3, ease: ease });
         TweenMax.to(this.pawBL.position, sp, { y: -2, z: -3, ease: ease });
         TweenMax.to(this.pawBR.position, sp, { y: -2, z: -3, ease: ease });
-
-        TweenMax.to(this.eyeL.scale, sp, { y: 1, ease: ease });
-        TweenMax.to(this.eyeR.scale, sp, { y: 1, ease: ease });
     }
 }

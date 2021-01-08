@@ -2,6 +2,7 @@ import * as THREE from 'https://unpkg.com/three/build/three.module.js';
 import { shadowLight } from './lights.js';
 import floor from './floor.js';
 import Hero from './hero.js';
+import Monster from './monster.js';
 import Trunc from './trunc.js';
 import state from './gameState.js';
 
@@ -70,6 +71,8 @@ function initScreenAnd3D() {
     initUI();
 }
 
+// CREATE COMPONENTS
+
 function createLights() {
     const globalLight = new THREE.AmbientLight(0xffffff, .9);
     scene.add(globalLight);
@@ -87,6 +90,14 @@ function createHero() {
     hero.nod();
 }
 
+function createMonster() {
+    monster = new Monster();
+    monster.mesh.position.z = 20;
+    //monster.mesh.scale.set(1.2,1.2,1.2);
+    scene.add(monster.mesh);
+    updateMonsterPosition();
+}
+
 function loop() {
     state.delta = clock.getDelta();
     updateFloorRotation();
@@ -95,8 +106,8 @@ function loop() {
         if (hero.status == "running") {
             hero.run();
         }
-
         updateDistance();
+        updateMonsterPosition();
     }
 
     renderer.render(scene, camera);
@@ -124,6 +135,20 @@ function updateDistance() {
 function updateFloorRotation() {
     state.floorRotation = (state.floorRotation + state.delta * .03 * state.speed) % (Math.PI * 2);
     floor.rotation.z = state.floorRotation;
+}
+
+function updateMonsterPosition() {
+    monster.run();
+    state.monsterPosTarget -= state.delta * monsterAcceleration;
+    state.monsterPos += (state.monsterPosTarget - state.monsterPos) * state.delta;
+    if (state.monsterPos < .56) {
+        gameOver();
+    }
+
+    var angle = Math.PI * state.monsterPos;
+    monster.mesh.position.y = - floorRadius + Math.sin(angle) * (floorRadius + 12);
+    monster.mesh.position.x = Math.cos(angle) * (floorRadius + 15);
+    monster.mesh.rotation.z = -Math.PI / 2 + angle;
 }
 
 function resetGameDefault() {
@@ -184,6 +209,7 @@ function init() {
     initScreenAnd3D();
     createLights();
     createFloor();
+    createMonster();
     createHero();
     createFirs();
     resetGameDefault();
@@ -300,6 +326,19 @@ function handleMouseDown(event) {
 function homePage() {
     fieldHomePage.className = "show";
     state.gameStatus = "homePage";
+    monster.sit();
+    hero.hang();
+    monster.heroHolder.add(hero.mesh);
+    TweenMax.to(this, 1, { speed: 0 });
+    TweenMax.to(camera.position, 3, { z: cameraPosGameOver, y: 60, x: -30 });
+    carrot.mesh.visible = false;
+    obstacle.mesh.visible = false;
+    clearInterval(levelInterval);
+}
+
+function gameOver() {
+    fieldGameOver.className = "show";
+    state.gameStatus = "gameOver";
     monster.sit();
     hero.hang();
     monster.heroHolder.add(hero.mesh);

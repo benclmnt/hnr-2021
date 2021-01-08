@@ -10,17 +10,17 @@ export default class Monster {
     this.body = new THREE.Group();
 
     var torsoGeom = new THREE.CubeGeometry(15, 15, 20, 1);
-    this.torso = new THREE.Mesh(torsoGeom, blackMat);
+    this.torso = new THREE.Mesh(torsoGeom, Material.PhongBlack);
 
     var headGeom = new THREE.CubeGeometry(20, 20, 40, 1);
     headGeom.applyMatrix(new THREE.Matrix4().makeTranslation(0, 0, 20));
-    this.head = new THREE.Mesh(headGeom, blackMat);
+    this.head = new THREE.Mesh(headGeom, Material.PhongBlack);
     this.head.position.z = 12;
     this.head.position.y = 2;
 
     var mouthGeom = new THREE.CubeGeometry(10, 4, 20, 1);
     mouthGeom.applyMatrix(new THREE.Matrix4().makeTranslation(0, -2, 10));
-    this.mouth = new THREE.Mesh(mouthGeom, blackMat);
+    this.mouth = new THREE.Mesh(mouthGeom, Material.PhongBlack);
     this.mouth.position.y = -8;
     this.mouth.rotation.x = .4;
     this.mouth.position.z = 4;
@@ -37,12 +37,12 @@ export default class Monster {
     toothGeom.vertices[0].x -= 1;
 
     for (var i = 0; i < 3; i++) {
-        var toothf = new THREE.Mesh(toothGeom, whiteMat);
+        var toothf = new THREE.Mesh(toothGeom, Material.PhongWhite);
         toothf.position.x = -2.8 + i * 2.5;
         toothf.position.y = 1;
         toothf.position.z = 19;
 
-        var toothl = new THREE.Mesh(toothGeom, whiteMat);
+        var toothl = new THREE.Mesh(toothGeom, Material.PhongWhite);
         toothl.rotation.y = Math.PI / 2;
         toothl.position.z = 12 + i * 2.5;
         toothl.position.y = 1;
@@ -59,13 +59,13 @@ export default class Monster {
     var tongueGeometry = new THREE.CubeGeometry(6, 1, 14);
     tongueGeometry.applyMatrix(new THREE.Matrix4().makeTranslation(0, 0, 7));
 
-    this.tongue = new THREE.Mesh(tongueGeometry, pinkMat);
+    this.tongue = new THREE.Mesh(tongueGeometry, Material.PhongPink);
     this.tongue.position.z = 2;
     this.tongue.rotation.x = -.2;
     this.mouth.add(this.tongue);
 
     var noseGeom = new THREE.CubeGeometry(4, 4, 4, 1);
-    this.nose = new THREE.Mesh(noseGeom, pinkMat);
+    this.nose = new THREE.Mesh(noseGeom, Material.PhongPink);
     this.nose.position.z = 39.5;
     this.nose.position.y = 9;
     this.head.add(this.nose);
@@ -74,7 +74,7 @@ export default class Monster {
 
     var eyeGeom = new THREE.CubeGeometry(2, 3, 3);
 
-    this.eyeL = new THREE.Mesh(eyeGeom, whiteMat);
+    this.eyeL = new THREE.Mesh(eyeGeom, Material.PhongWhite);
     this.eyeL.position.x = 10;
     this.eyeL.position.z = 5;
     this.eyeL.position.y = 5;
@@ -83,7 +83,7 @@ export default class Monster {
 
     var irisGeom = new THREE.CubeGeometry(.6, 1, 1);
 
-    this.iris = new THREE.Mesh(irisGeom, blackMat);
+    this.iris = new THREE.Mesh(irisGeom, Material.PhongBlack);
     this.iris.position.x = 1.2;
     this.iris.position.y = -1;
     this.iris.position.z = 1;
@@ -106,7 +106,7 @@ export default class Monster {
 
     earGeom.applyMatrix(new THREE.Matrix4().makeTranslation(0, 3, 0));
 
-    this.earL = new THREE.Mesh(earGeom, blackMat);
+    this.earL = new THREE.Mesh(earGeom, Material.PhongBlack);
     this.earL.position.x = 6;
     this.earL.position.z = 1;
     this.earL.position.y = 10;
@@ -125,7 +125,7 @@ export default class Monster {
     tailGeom.applyMatrix(new THREE.Matrix4().makeRotationX(-Math.PI / 2));
     tailGeom.applyMatrix(new THREE.Matrix4().makeRotationZ(Math.PI / 4));
 
-    this.tail = new THREE.Mesh(tailGeom, blackMat);
+    this.tail = new THREE.Mesh(tailGeom, Material.PhongBlack);
     this.tail.position.z = -10;
     this.tail.position.y = 4;
     this.torso.add(this.tail);
@@ -133,7 +133,7 @@ export default class Monster {
 
     var pawGeom = new THREE.CylinderGeometry(1.5, 0, 10);
     pawGeom.applyMatrix(new THREE.Matrix4().makeTranslation(0, -5, 0));
-    this.pawFL = new THREE.Mesh(pawGeom, blackMat);
+    this.pawFL = new THREE.Mesh(pawGeom, Material.PhongBlack);
     this.pawFL.position.y = -7.5;
     this.pawFL.position.z = 8.5;
     this.pawFL.position.x = 5.5;
