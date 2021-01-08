@@ -2,12 +2,17 @@ import * as THREE from 'https://unpkg.com/three/build/three.module.js';
 import { shadowLight } from './lights.js';
 import floor from './floor.js';
 import Hero from './hero.js';
+import Vaccine from './vaccine.js';
 import Monster from './monster.js';
+import Virus from './virus.js';
 import Trunc from './trunc.js';
 import state from './gameState.js';
 
 let scene, camera, clock, renderer;
 
+const audio = new Audio(
+    'https://drive.google.com/file/d/13dP8QP50JFN1L9WLDgODzmvjMf9er933/view',
+);
 let monsterAcceleration = 0.004;
 let malusClearColor = 0xb44b39;
 let malusClearAlpha = 0;
@@ -26,7 +31,7 @@ const cameraPosGame = 160;
 const cameraPosGameOver = 260;
 
 // characters
-let hero, monster;
+let hero, monster, vaccine, obstacle;
 
 let fieldGameOver, fieldHomePage, fieldDistance;
 
@@ -93,12 +98,26 @@ function createHero() {
     hero.nod();
 }
 
+function createVaccine() {
+    vaccine = new Vaccine();
+    scene.add(vaccine.mesh);
+}
+
 function createMonster() {
     monster = new Monster();
     monster.mesh.position.z = 20;
     //monster.mesh.scale.set(1.2,1.2,1.2);
     scene.add(monster.mesh);
     updateMonsterPosition();
+}
+
+function createObstacle() {
+    obstacle = new Virus();
+    obstacle.body.rotation.y = -Math.PI / 2;
+    obstacle.mesh.scale.set(1.1, 1.1, 1.1);
+    obstacle.mesh.position.y = floorRadius + 4;
+    obstacle.nod();
+    scene.add(obstacle.mesh);
 }
 
 function loop() {
@@ -110,7 +129,9 @@ function loop() {
             hero.run();
         }
         updateDistance();
+        updateVaccinePosition();
         updateMonsterPosition();
+        updateObstaclePosition();
     }
 
     renderer.render(scene, camera);
@@ -142,6 +163,17 @@ function updateFloorRotation() {
     floor.rotation.z = state.floorRotation;
 }
 
+function updateVaccinePosition() {
+    vaccine.mesh.rotation.y += state.delta * 6;
+    vaccine.mesh.rotation.z =
+        Math.PI / 2 - (state.floorRotation + vaccine.angle);
+    vaccine.mesh.position.y =
+        -floorRadius +
+        Math.sin(state.floorRotation + vaccine.angle) * (floorRadius + 50);
+    vaccine.mesh.position.x =
+        Math.cos(state.floorRotation + vaccine.angle) * (floorRadius + 50);
+}
+
 function updateMonsterPosition() {
     monster.run();
     state.monsterPosTarget -= state.delta * monsterAcceleration;
@@ -156,6 +188,24 @@ function updateMonsterPosition() {
         -floorRadius + Math.sin(angle) * (floorRadius + 12);
     monster.mesh.position.x = Math.cos(angle) * (floorRadius + 15);
     monster.mesh.rotation.z = -Math.PI / 2 + angle;
+}
+
+function updateObstaclePosition() {
+    if (obstacle.status == 'flying') return;
+
+    // TODO fix this,
+    if (state.floorRotation + obstacle.angle > 2.5) {
+        obstacle.angle = -state.floorRotation + Math.random() * 0.3;
+        obstacle.body.rotation.y = Math.random() * Math.PI * 2;
+    }
+
+    obstacle.mesh.rotation.z =
+        state.floorRotation + obstacle.angle - Math.PI / 2;
+    obstacle.mesh.position.y =
+        -floorRadius +
+        Math.sin(state.floorRotation + obstacle.angle) * (floorRadius + 3);
+    obstacle.mesh.position.x =
+        Math.cos(state.floorRotation + obstacle.angle) * (floorRadius + 3);
 }
 
 function resetGameDefault() {
@@ -276,7 +326,9 @@ function init() {
     createFloor();
     createMonster();
     createHero();
+    createVaccine();
     createFirs();
+    createObstacle();
     resetGameDefault();
     loop();
 }
@@ -395,8 +447,8 @@ function homePage() {
     monster.heroHolder.add(hero.mesh);
     gsap.to(this, 1, { speed: 0 });
     gsap.to(camera.position, 3, { z: cameraPosGameOver, y: 60, x: -30 });
-    // carrot.mesh.visible = false;
-    // obstacle.mesh.visible = false;
+    vaccine.mesh.visible = false;
+    obstacle.mesh.visible = false;
     clearInterval(levelInterval);
 }
 
@@ -409,7 +461,7 @@ function gameOver() {
     monster.heroHolder.add(hero.mesh);
     gsap.to(this, 1, { speed: 0 });
     gsap.to(camera.position, 3, { z: cameraPosGameOver, y: 60, x: -30 });
-    // carrot.mesh.visible = false;
-    // obstacle.mesh.visible = false;
+    vaccine.mesh.visible = false;
+    obstacle.mesh.visible = false;
     clearInterval(levelInterval);
 }
