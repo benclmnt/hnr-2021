@@ -25,7 +25,7 @@ blockquote, dd, div, dl, dt, form, h1, h2, h3, h4, h5, h6, li, ol, p, pre, td, t
 }
 
 
-#gameoverInstructions{
+#gameoverInst{
   position:absolute;
   font-family:'Voltaire', sans-serif;
   font-weight:bold;
@@ -41,7 +41,8 @@ blockquote, dd, div, dl, dt, form, h1, h2, h3, h4, h5, h6, li, ol, p, pre, td, t
   user-select: none;
   transition: all 500ms ease-in-out;
 }
-#gameoverInstructions.show {
+
+#gameoverInst.show {
   opacity:1;
   transform : translate(-50%,-50%);
   transition: all 500ms ease-in-out;
