@@ -1,5 +1,6 @@
 import * as THREE from 'https://unpkg.com/three/build/three.module.js';
 import * as Material from './materials.js';
+import state from './gameState.js';
 
 export default class Hero {
     constructor() {
@@ -84,9 +85,9 @@ export default class Hero {
     run() {
         this.status = "running";
 
-        let s = Math.min(speed, maxSpeed);
+        let s = Math.min(state.speed, state.maxSpeed);
 
-        this.runningCycle += delta * s * .7;
+        this.runningCycle += state.delta * s * .7;
         this.runningCycle = this.runningCycle % (Math.PI * 2);
         let t = this.runningCycle;
 
@@ -100,39 +101,6 @@ export default class Hero {
 
         this.torso.rotation.x = Math.sin(t - Math.PI / 2) * amp * .1;
         this.torso.position.y = 7 + Math.sin(t - Math.PI / 2) * amp * .5;
-
-        // MOUTH
-        this.mouth.rotation.x = Math.PI / 16 + Math.cos(t) * amp * .05;
-
-        // HEAD
-        this.head.position.z = 2 + Math.sin(t - Math.PI / 2) * amp * .5;
-        this.head.position.y = 8 + Math.cos(t - Math.PI / 2) * amp * .7;
-        this.head.rotation.x = -.2 + Math.sin(t + Math.PI) * amp * .1;
-
-        // EARS
-        this.earL.rotation.x = Math.cos(-Math.PI / 2 + t) * (amp * .2);
-        this.earR.rotation.x = Math.cos(-Math.PI / 2 + .2 + t) * (amp * .3);
-
-        // EYES
-        this.eyeR.scale.y = this.eyeL.scale.y = .7 + Math.abs(Math.cos(-Math.PI / 4 + t * .5)) * .6;
-
-        // TAIL
-        this.tail.rotation.x = Math.cos(Math.PI / 2 + t) * amp * .3;
-
-        // FRONT RIGHT PAW
-        this.pawFR.position.y = 1.5 + Math.sin(t) * amp;
-        this.pawFR.rotation.x = Math.cos(t) * Math.PI / 4;
-
-
-        this.pawFR.position.z = 6 - Math.cos(t) * amp * 2;
-
-        // FRONT LEFT PAW
-
-        this.pawFL.position.y = 1.5 + Math.sin(disp + t) * amp;
-        this.pawFL.rotation.x = Math.cos(t) * Math.PI / 4;
-
-
-        this.pawFL.position.z = 6 - Math.cos(disp + t) * amp * 2;
 
         // BACK RIGHT PAW
         this.pawBR.position.y = 1.5 + Math.sin(Math.PI + t) * amp;
@@ -153,20 +121,11 @@ export default class Hero {
         if (this.status == "jumping") return;
         this.status = "jumping";
         let _this = this;
-        let totalSpeed = 10 / speed;
+        let totalSpeed = 10 / state.speed;
         let jumpHeight = 45;
 
-        TweenMax.to(this.earL.rotation, totalSpeed, { x: "+=.3", ease: Back.easeOut });
-        TweenMax.to(this.earR.rotation, totalSpeed, { x: "-=.3", ease: Back.easeOut });
-
-        TweenMax.to(this.pawFL.rotation, totalSpeed, { x: "+=.7", ease: Back.easeOut });
-        TweenMax.to(this.pawFR.rotation, totalSpeed, { x: "-=.7", ease: Back.easeOut });
         TweenMax.to(this.pawBL.rotation, totalSpeed, { x: "+=.7", ease: Back.easeOut });
         TweenMax.to(this.pawBR.rotation, totalSpeed, { x: "-=.7", ease: Back.easeOut });
-
-        TweenMax.to(this.tail.rotation, totalSpeed, { x: "+=1", ease: Back.easeOut });
-
-        TweenMax.to(this.mouth.rotation, totalSpeed, { x: .5, ease: Back.easeOut });
 
         TweenMax.to(this.mesh.position, totalSpeed / 2, { y: jumpHeight, ease: Power2.easeOut });
         TweenMax.to(this.mesh.position, totalSpeed / 2, {
