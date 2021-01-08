@@ -5,7 +5,7 @@ import floor from './floor.js';
 import Hero from './hero.js';
 import { initGameState, gameLimit } from './gameState.js';
 
-let scene, camera, clock, renderer, backLight;
+let scene, camera, clock, renderer;
 
 let delta = 0;
 let monsterAcceleration = 0.004;
@@ -38,7 +38,7 @@ let {
     monsterPos,
     monsterPosTarget } = initGameState;
 let { maxSpeed } = gameLimit;
-let levelInterval;
+let levelInterval; // increase level interval
 let levelUpdateFreq = 3000; // 3s
 
 //INIT THREE JS, SCREEN AND MOUSE EVENTS
@@ -75,54 +75,9 @@ function initScreenAnd3D() {
     renderer.setSize(WIDTH, HEIGHT);
     renderer.shadowMap.enabled = true;
 
-    // event listeners
-    window.addEventListener('resize', handleWindowResize, false);
-    document.addEventListener("keydown", function(event) {
-        if (event.key === 'Escape'){
-           // Esc key was pressed
-           handleEscape();
-       }
-    });
-
     clock = new THREE.Clock();
-}
-const closeModalButtons = document.querySelectorAll('[data-close-button]')
-const overlay = document.getElementById('overlay')
 
-closeModalButtons.forEach(button => {
-    button.addEventListener('click', () => {
-      const modal = button.closest('.modal')
-      closeModal(modal)
-      handleEscape()
-    })
-})
-
-function openModal(modal) {
-    if (modal == null) return
-    modal.classList.add('active')
-    overlay.classList.add('active')
-}
-  
-function closeModal(modal) {
-    if (modal == null) return
-    modal.classList.remove('active')
-    overlay.classList.remove('active')
-}
-
-function handleEscape() {
-    if (gameStatus == "paused") {
-        const modals = document.querySelectorAll('.modal.active');
-        modals.forEach(modal => {
-            closeModal(modal)
-        })
-        gameStatus = "play"
-        clock.start()
-        loop()
-    } else if (gameStatus == "play") {
-        const modal = document.querySelector('#modal')
-        gameStatus = "paused"
-        openModal(modal)
-    }
+    initListeners();
 }
 
 function createLights() {
@@ -148,6 +103,9 @@ function initUI() {
 }
 
 function loop() {
+    delta = clock.getDelta();
+    updateFloorRotation();
+
     renderer.render(scene, camera);
     requestAnimationFrame(loop);
 }
@@ -157,6 +115,11 @@ function updateLevel() {
     if (speed >= maxSpeed) return;
     level++;
     speed += 2;
+}
+
+function updateFloorRotation() {
+    floorRotation = (floorRotation + delta * .03 * speed) % (Math.PI * 2);
+    floor.rotation.z = floorRotation;
 }
 
 function resetGameDefault() {
@@ -186,6 +149,55 @@ function resetGameDefault() {
 }
 
 // listeners utilities
+
+function initListeners() {
+    window.addEventListener('resize', handleWindowResize, false);
+    document.addEventListener("keydown", function(event) {
+        if (event.key === 'Escape'){
+           // Esc key was pressed
+            handleEscape();
+        }
+    });
+    const closeModalButtons = document.querySelectorAll('[data-close-button]')
+    const overlay = document.getElementById('overlay')
+
+    closeModalButtons.forEach(button => {
+        button.addEventListener('click', () => {
+            const modal = button.closest('.modal')
+            closeModal(modal)
+            handleEscape()
+        })
+    })
+
+}
+
+function openModal(modal) {
+    if (modal == null) return
+    modal.classList.add('active')
+    overlay.classList.add('active')
+}
+
+function closeModal(modal) {
+    if (modal == null) return
+    modal.classList.remove('active')
+    overlay.classList.remove('active')
+}
+
+function handleEscape() {
+    if (gameStatus == "paused") {
+        const modals = document.querySelectorAll('.modal.active');
+        modals.forEach(modal => {
+            closeModal(modal)
+        })
+        gameStatus = "play"
+        clock.start()
+        loop()
+    } else if (gameStatus == "play") {
+        const modal = document.querySelector('#modal')
+        gameStatus = "paused"
+        openModal(modal)
+    }
+}
 
 function handleWindowResize() {
     const HEIGHT = window.innerHeight;
