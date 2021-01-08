@@ -44,3 +44,20 @@ export let PhongDarkGreen = new THREE.MeshPhongMaterial({
     color: 0x336600,
     flatShading: true,
 });
+
+export let PhongRed = new THREE.MeshPhongMaterial({
+    color: 0x59060a,
+    flatShading: true,
+});
+
+export let PhongBlue = new THREE.MeshPhongMaterial({
+    color: 0x25adcc,
+    flatShading: true,
+    emmisive : 0xffffff,
+    shininess: 100,
+});
+
+export let PhongYellow = new THREE.MeshPhongMaterial({
+    color: 0xe0a709,
+    flatShading: true,
+});

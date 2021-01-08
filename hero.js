@@ -13,7 +13,7 @@ export default class Hero {
         let torsoGeom = new THREE.CylinderGeometry(5, 5, 11, 20, 1);
 
         let backpackGeom = new THREE.CubeGeometry(5, 7, 3, 1);
-        this.backpack = new THREE.Mesh(backpackGeom, Material.PhongWhite);
+        this.backpack = new THREE.Mesh(backpackGeom, Material.PhongRed);
         this.backpack.position.z = -6;
         this.backpack.position.y = 7;
         this.backpack.rotation.x = -Math.PI / 16;
@@ -22,12 +22,12 @@ export default class Hero {
 
         let topGeom = new THREE.SphereGeometry(5, 20, 20);
 
-        this.torso = new THREE.Mesh(torsoGeom, Material.PhongBrown);
+        this.torso = new THREE.Mesh(torsoGeom, Material.PhongRed);
         this.torso.position.z = 0;
         this.torso.position.y = 8;
         this.torso.castShadow = true;
         this.body.add(this.torso);
-        this.top = new THREE.Mesh(topGeom, Material.PhongBrown);
+        this.top = new THREE.Mesh(topGeom, Material.PhongRed);
         this.top.position.z = 0;
         this.top.position.y = 5;
         this.top.castShadow = true;
@@ -43,13 +43,13 @@ export default class Hero {
         let headGeom = new THREE.CubeGeometry(10, 10, 13, 1);
 
         let fistGeom = new THREE.SphereGeometry(1.5, 20, 20);
-        this.fistR = new THREE.Mesh(fistGeom, Material.PhongPink);
+        this.fistR = new THREE.Mesh(fistGeom, Material.PhongRed);
         this.fistR.position.x = 0;
         this.fistR.position.z = 0;
         this.fistR.position.y = -2.5;
 
         let handGeom = new THREE.CylinderGeometry(1.2, 1.5, 5, 20, 1);
-        this.handR = new THREE.Mesh(handGeom, Material.PhongPink);
+        this.handR = new THREE.Mesh(handGeom, Material.PhongRed);
         this.handR.position.x = -5;
         this.handR.position.z = -1;
         this.handR.position.y = 8;
@@ -62,7 +62,7 @@ export default class Hero {
         this.body.add(this.handL);
 
         let pawBGeom = new THREE.CylinderGeometry(1.3, 1.3, 5, 20, 1);
-        this.pawBL = new THREE.Mesh(pawBGeom, Material.PhongLightBrown);
+        this.pawBL = new THREE.Mesh(pawBGeom, Material.PhongRed);
         this.pawBL.position.y = 1;
         this.pawBL.position.z = 1;
         this.pawBL.position.x = 2;
@@ -99,6 +99,14 @@ export default class Hero {
         this.body.position.y = 3 + Math.sin(t - Math.PI / 2) * amp * 0.5;
 
         this.body.rotation.x = Math.sin(t - Math.PI / 2) * amp * 0.1;
+
+        // LEFT HAND
+        this.handL.rotation.x = (Math.cos(t) * Math.PI) / 4;
+        this.handL.position.z = (-Math.cos(t) * amp) / 2;
+
+        // RIGHT HAND
+        this.handR.rotation.x = Math.cos(t + Math.PI) / 2;
+        this.handR.position.z = (-Math.cos(Math.PI + t) * amp) / 2;
 
         // BACK RIGHT PAW
         this.pawBR.position.y = 0.5 + (Math.sin(t) * amp) / 4;
