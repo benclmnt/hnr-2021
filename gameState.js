@@ -4,11 +4,12 @@ class GameState {
         this._level = 1;
         this._distance = 0;
         this._speed = 5;
-        this._gameStatus = 'play';
+        this._gameStatus = 'beginning';
         this._floorRotation = 0;
         this._monsterPos = 0.65;
         this._monsterPosTarget = 0.65;
-
+        this._collisionBonus = 20;
+        this._collisionObstacle = 10;10
         // only getter
         this._maxSpeed = 48;
     }
@@ -22,6 +23,20 @@ class GameState {
     }
     get delta() {
         return this._delta;
+    }
+
+    set collisionBonus(val) {
+        this._collisionBonus = val;
+    }
+    get collisionBonus() {
+        return this._collisionBonus;
+    }
+
+    set collisionObstacle(val) {
+        this._collisionObstacle = val;
+    }
+    get collisionObstacle() {
+        return this._collisionObstacle;
     }
 
     set level(val) {

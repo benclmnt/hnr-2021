@@ -1,6 +1,7 @@
 import * as THREE from 'https://unpkg.com/three/build/three.module.js';
 import { shadowLight } from './lights.js';
 import floor from './floor.js';
+import BonusParticles from './bonusParticles.js';
 import Hero from './hero.js';
 import Vaccine from './vaccine.js';
 import Monster from './monster.js';
@@ -31,7 +32,7 @@ const cameraPosGame = 160;
 const cameraPosGameOver = 260;
 
 // characters
-let hero, monster, vaccine, obstacle;
+let hero, monster, vaccine, obstacle, bonusParticles;
 
 let fieldGameOver, fieldHomePage, fieldDistance;
 
@@ -111,6 +112,12 @@ function createMonster() {
     updateMonsterPosition();
 }
 
+function createBonusParticles() {
+    bonusParticles = new BonusParticles();
+    bonusParticles.mesh.visible = false;
+    scene.add(bonusParticles.mesh);
+}
+
 function createObstacle() {
     obstacle = new Virus();
     obstacle.body.rotation.y = -Math.PI / 2;
@@ -132,6 +139,7 @@ function loop() {
         updateVaccinePosition();
         updateMonsterPosition();
         updateObstaclePosition();
+        checkCollision();
     }
 
     renderer.render(scene, camera);
@@ -190,6 +198,8 @@ function updateMonsterPosition() {
     monster.mesh.rotation.z = -Math.PI / 2 + angle;
 }
 
+// OBSTACLE RELATED
+
 function updateObstaclePosition() {
     if (obstacle.status == 'flying') return;
 
@@ -206,6 +216,55 @@ function updateObstaclePosition() {
         Math.sin(state.floorRotation + obstacle.angle) * (floorRadius + 3);
     obstacle.mesh.position.x =
         Math.cos(state.floorRotation + obstacle.angle) * (floorRadius + 3);
+}
+
+function checkCollision() {
+    var db = hero.mesh.position.clone().sub(vaccine.mesh.position.clone());
+    var dm = hero.mesh.position.clone().sub(obstacle.mesh.position.clone());
+
+    if (db.length() < state.collisionBonus) {
+        getBonus();
+    }
+
+    if (dm.length() < state.collisionObstacle && obstacle.status != "flying") {
+        getMalus();
+    }
+}
+
+function getBonus() {
+    bonusParticles.mesh.position.copy(vaccine.mesh.position);
+    bonusParticles.mesh.visible = true;
+    bonusParticles.explode();
+    vaccine.angle += Math.PI / 2;
+    //speed*=.95;
+    state.monsterPosTarget += .025;
+}
+
+function getMalus() {
+    obstacle.status = "flying";
+    var tx = (Math.random() > .5) ? -20 - Math.random() * 10 : 20 + Math.random() * 5;
+    TweenMax.to(obstacle.mesh.position, 4, { x: tx, y: Math.random() * 50, z: 350, ease: Power4.easeOut });
+    TweenMax.to(obstacle.mesh.rotation, 4, {
+        x: Math.PI * 3, z: Math.PI * 3, y: Math.PI * 6, ease: Power4.easeOut, onComplete: function () {
+            obstacle.status = "ready";
+            obstacle.body.rotation.y = Math.random() * Math.PI * 2;
+            obstacle.angle = -state.floorRotation - Math.random() * .4;
+
+            obstacle.angle = obstacle.angle % (Math.PI * 2);
+            obstacle.mesh.rotation.x = 0;
+            obstacle.mesh.rotation.y = 0;
+            obstacle.mesh.rotation.z = 0;
+            obstacle.mesh.position.z = 0;
+
+        }
+    });
+    //
+    state.monsterPosTarget -= .04;
+    TweenMax.from(this, .5, {
+        malusClearAlpha: .5, onUpdate: function () {
+            renderer.setClearColor(malusClearColor, malusClearAlpha);
+        }
+    })
 }
 
 function resetGameDefault() {
@@ -232,7 +291,8 @@ function replay() {
     scene.fog.near = initFogNear;
 
     fieldGameOver.className = '';
-
+    fieldHomePage.className = "";
+    
     gsap.killTweensOf(monster.pawFL.position);
     gsap.killTweensOf(monster.pawFR.position);
     gsap.killTweensOf(monster.pawBL.position);
@@ -326,10 +386,15 @@ function init() {
     createFloor();
     createMonster();
     createHero();
+    createBonusParticles();
     createVaccine();
     createFirs();
     createObstacle();
-    resetGameDefault();
+    if (state.gameStatus != 'beginning') {
+        resetGameDefault();
+    } else {
+        homePage();
+    }
     loop();
 }
 
@@ -373,7 +438,6 @@ function initListeners() {
     restartGameButtons.forEach((button) => {
         button.addEventListener('click', () => {
             const modal = button.closest('.modal');
-            console.log('reset button pressed');
             closeModal(modal);
             clearInterval(levelInterval);
             resetGameDefault();
