@@ -1,6 +1,7 @@
 import * as THREE from 'https://unpkg.com/three/build/three.module.js';
 import { shadowLight } from './lights.js';
 import floor from './floor.js';
+import BonusParticles from './bonusParticles.js';
 import Hero from './hero.js';
 import Vaccine from './vaccine.js';
 import Monster from './monster.js';
@@ -10,23 +11,28 @@ import state from './gameState.js';
 
 let scene, camera, clock, renderer;
 
-var audio = new Audio('https://drive.google.com/file/d/13dP8QP50JFN1L9WLDgODzmvjMf9er933/view');
+const audio = new Audio(
+    'https://drive.google.com/file/d/13dP8QP50JFN1L9WLDgODzmvjMf9er933/view?usp=sharing',
+);
 let monsterAcceleration = 0.004;
 let malusClearColor = 0xb44b39;
 let malusClearAlpha = 0;
 
-// scene background
-let sceneBackgroundColor = 0xaaaaaa;
+// scene vars
+let sceneBackgroundColor = 0xf54040;
 let floorRadius = 200;
+let initFogNear = 160;
+const outFogNear = 80;
 
-// camera variables
+// camera vars
 const nearPlane = 1;
 const farPlane = 2000;
 const fov = 50; // field of view
-let cameraPosGameOver = 160;
+const cameraPosGame = 160;
+const cameraPosGameOver = 260;
 
 // characters
-let hero, monster, vaccine, obstacle;
+let hero, monster, vaccine, obstacle, bonusParticles;
 
 let fieldGameOver, fieldHomePage, fieldDistance;
 
@@ -43,7 +49,7 @@ function initScreenAnd3D() {
     // set global scene
     scene = new THREE.Scene();
     scene.background = new THREE.Color(sceneBackgroundColor);
-    scene.fog = new THREE.Fog(0xd6eae6, 160, 350);
+    scene.fog = new THREE.Fog(0xaaaaaa, initFogNear, 350);
 
     // set global camera
     camera = new THREE.PerspectiveCamera(
@@ -52,7 +58,7 @@ function initScreenAnd3D() {
         nearPlane,
         farPlane,
     );
-    camera.position.set(0, 30, cameraPosGameOver);
+    camera.position.set(0, 30, cameraPosGame);
     camera.lookAt(new THREE.Vector3(0, 30, 0));
 
     const canvas = document.getElementById('world');
@@ -106,6 +112,12 @@ function createMonster() {
     updateMonsterPosition();
 }
 
+function createBonusParticles() {
+    bonusParticles = new BonusParticles();
+    bonusParticles.mesh.visible = false;
+    scene.add(bonusParticles.mesh);
+}
+
 function createObstacle() {
     obstacle = new Virus();
     obstacle.body.rotation.y = -Math.PI / 2;
@@ -127,6 +139,7 @@ function loop() {
         updateVaccinePosition();
         updateMonsterPosition();
         updateObstaclePosition();
+        checkCollision();
     }
 
     renderer.render(scene, camera);
@@ -160,38 +173,98 @@ function updateFloorRotation() {
 
 function updateVaccinePosition() {
     vaccine.mesh.rotation.y += state.delta * 6;
-    vaccine.mesh.rotation.z = Math.PI / 2 - (state.floorRotation + vaccine.angle);
-    vaccine.mesh.position.y = -floorRadius + Math.sin(state.floorRotation + vaccine.angle) * (floorRadius + 50);
-    vaccine.mesh.position.x = Math.cos(state.floorRotation + vaccine.angle) * (floorRadius + 50);
+    vaccine.mesh.rotation.z =
+        Math.PI / 2 - (state.floorRotation + vaccine.angle);
+    vaccine.mesh.position.y =
+        -floorRadius +
+        Math.sin(state.floorRotation + vaccine.angle) * (floorRadius + 50);
+    vaccine.mesh.position.x =
+        Math.cos(state.floorRotation + vaccine.angle) * (floorRadius + 50);
 }
 
 function updateMonsterPosition() {
     monster.run();
     state.monsterPosTarget -= state.delta * monsterAcceleration;
-    state.monsterPos += (state.monsterPosTarget - state.monsterPos) * state.delta;
-    if (state.monsterPos < .56) {
+    state.monsterPos +=
+        (state.monsterPosTarget - state.monsterPos) * state.delta;
+    if (state.monsterPos < 0.56) {
         gameOver();
     }
 
-    var angle = Math.PI * state.monsterPos;
-    monster.mesh.position.y = - floorRadius + Math.sin(angle) * (floorRadius + 12);
+    const angle = Math.PI * state.monsterPos;
+    monster.mesh.position.y =
+        -floorRadius + Math.sin(angle) * (floorRadius + 12);
     monster.mesh.position.x = Math.cos(angle) * (floorRadius + 15);
     monster.mesh.rotation.z = -Math.PI / 2 + angle;
 }
 
+// OBSTACLE RELATED
+
 function updateObstaclePosition() {
-    if (obstacle.status == "flying") return;
+    if (obstacle.status == 'flying') return;
 
     // TODO fix this,
     if (state.floorRotation + obstacle.angle > 2.5) {
-        obstacle.angle = -state.floorRotation + Math.random() * .3;
+        obstacle.angle = -state.floorRotation + Math.random() * 0.3;
         obstacle.body.rotation.y = Math.random() * Math.PI * 2;
     }
 
-    obstacle.mesh.rotation.z = state.floorRotation + obstacle.angle - Math.PI / 2;
-    obstacle.mesh.position.y = -floorRadius + Math.sin(state.floorRotation + obstacle.angle) * (floorRadius + 3);
-    obstacle.mesh.position.x = Math.cos(state.floorRotation + obstacle.angle) * (floorRadius + 3);
+    obstacle.mesh.rotation.z =
+        state.floorRotation + obstacle.angle - Math.PI / 2;
+    obstacle.mesh.position.y =
+        -floorRadius +
+        Math.sin(state.floorRotation + obstacle.angle) * (floorRadius + 3);
+    obstacle.mesh.position.x =
+        Math.cos(state.floorRotation + obstacle.angle) * (floorRadius + 3);
+}
 
+function checkCollision() {
+    var db = hero.mesh.position.clone().sub(vaccine.mesh.position.clone());
+    var dm = hero.mesh.position.clone().sub(obstacle.mesh.position.clone());
+
+    if (db.length() < state.collisionBonus) {
+        getBonus();
+    }
+
+    if (dm.length() < state.collisionObstacle && obstacle.status != "flying") {
+        getMalus();
+    }
+}
+
+function getBonus() {
+    bonusParticles.mesh.position.copy(vaccine.mesh.position);
+    bonusParticles.mesh.visible = true;
+    bonusParticles.explode();
+    vaccine.angle += Math.PI / 2;
+    //speed*=.95;
+    state.monsterPosTarget += .025;
+}
+
+function getMalus() {
+    obstacle.status = "flying";
+    var tx = (Math.random() > .5) ? -20 - Math.random() * 10 : 20 + Math.random() * 5;
+    TweenMax.to(obstacle.mesh.position, 4, { x: tx, y: Math.random() * 50, z: 350, ease: Power4.easeOut });
+    TweenMax.to(obstacle.mesh.rotation, 4, {
+        x: Math.PI * 3, z: Math.PI * 3, y: Math.PI * 6, ease: Power4.easeOut, onComplete: function () {
+            obstacle.status = "ready";
+            obstacle.body.rotation.y = Math.random() * Math.PI * 2;
+            obstacle.angle = -state.floorRotation - Math.random() * .4;
+
+            obstacle.angle = obstacle.angle % (Math.PI * 2);
+            obstacle.mesh.rotation.x = 0;
+            obstacle.mesh.rotation.y = 0;
+            obstacle.mesh.rotation.z = 0;
+            obstacle.mesh.position.z = 0;
+
+        }
+    });
+    //
+    state.monsterPosTarget -= .04;
+    TweenMax.from(this, .5, {
+        malusClearAlpha: .5, onUpdate: function () {
+            renderer.setClearColor(malusClearColor, malusClearAlpha);
+        }
+    })
 }
 
 function resetGameDefault() {
@@ -213,30 +286,85 @@ function resetGameDefault() {
     levelInterval = setInterval(updateLevel, levelUpdateFreq);
 }
 
+function replay() {
+    state.gameStatus = 'preparingToReplay';
+    scene.fog.near = initFogNear;
+
+    fieldGameOver.className = '';
+    fieldHomePage.className = "";
+    
+    gsap.killTweensOf(monster.pawFL.position);
+    gsap.killTweensOf(monster.pawFR.position);
+    gsap.killTweensOf(monster.pawBL.position);
+    gsap.killTweensOf(monster.pawBR.position);
+
+    gsap.killTweensOf(monster.pawFL.rotation);
+    gsap.killTweensOf(monster.pawFR.rotation);
+    gsap.killTweensOf(monster.pawBL.rotation);
+    gsap.killTweensOf(monster.pawBR.rotation);
+
+    gsap.killTweensOf(monster.tail.rotation);
+    gsap.killTweensOf(monster.head.rotation);
+    gsap.killTweensOf(monster.eyeL.scale);
+    gsap.killTweensOf(monster.eyeR.scale);
+
+    //gsap.killTweensOf(hero.head.rotation);
+
+    monster.tail.rotation.y = 0;
+
+    gsap.to(camera.position, 3, {
+        z: cameraPosGame,
+        x: 0,
+        y: 30,
+        ease: Power4.easeInOut,
+    });
+    gsap.to(monster.torso.rotation, 2, { x: 0, ease: Power4.easeInOut });
+    gsap.to(monster.torso.position, 2, { y: 0, ease: Power4.easeInOut });
+    gsap.to(monster.pawFL.rotation, 2, { x: 0, ease: Power4.easeInOut });
+    gsap.to(monster.pawFR.rotation, 2, { x: 0, ease: Power4.easeInOut });
+    gsap.to(monster.mouth.rotation, 2, { x: 0.5, ease: Power4.easeInOut });
+
+    gsap.to(monster.head.rotation, 2, {
+        y: 0,
+        x: -0.3,
+        ease: Power4.easeInOut,
+    });
+
+    gsap.to(hero.mesh.position, 2, { x: 20, ease: Power4.easeInOut });
+    gsap.to(monster.mouth.rotation, 2, { x: 0.2, ease: Power4.easeInOut });
+    gsap.to(monster.mouth.rotation, 1, {
+        x: 0.4,
+        ease: Power4.easeIn,
+        delay: 1,
+        onComplete: function () {
+            resetGameDefault();
+        },
+    });
+}
 
 // TREE
 
-var firs = new THREE.Group();
+const firs = new THREE.Group();
 
 function createFirs() {
-    var nTrees = 100;
-    for (var i = 0; i < nTrees; i++) {
-        var phi = (i * (Math.PI * 2)) / nTrees;
-        var theta = Math.PI / 2;
+    const nTrees = 100;
+    for (let i = 0; i < nTrees; i++) {
+        const phi = (i * (Math.PI * 2)) / nTrees;
+        let theta = Math.PI / 2;
         //theta += .25 + Math.random()*.3;
         theta +=
             Math.random() > 0.05
                 ? 0.25 + Math.random() * 0.3
                 : -0.35 - Math.random() * 0.1;
 
-        var fir = new Tree();
+        const fir = new Tree();
         fir.mesh.position.x = Math.sin(theta) * Math.cos(phi) * floorRadius;
         fir.mesh.position.y =
             Math.sin(theta) * Math.sin(phi) * (floorRadius - 10);
         fir.mesh.position.z = Math.cos(theta) * floorRadius;
 
-        var vec = fir.mesh.position.clone();
-        var axis = new THREE.Vector3(0, 1, 0);
+        const vec = fir.mesh.position.clone();
+        const axis = new THREE.Vector3(0, 1, 0);
         fir.mesh.quaternion.setFromUnitVectors(axis, vec.clone().normalize());
         floor.add(fir.mesh);
     }
@@ -258,10 +386,15 @@ function init() {
     createFloor();
     createMonster();
     createHero();
+    createBonusParticles();
     createVaccine();
     createFirs();
     createObstacle();
-    resetGameDefault();
+    if (state.gameStatus != 'beginning') {
+        resetGameDefault();
+    } else {
+        homePage();
+    }
     loop();
 }
 
@@ -286,6 +419,10 @@ function initListeners() {
             // Esc key was pressed
             handleEscape();
         }
+
+        if (event.key === ' ') { // spacebar
+            handleMouseDown(event);
+        }
     });
     const closeModalButtons = document.querySelectorAll('[data-close-button]');
     const restartGameButtons = document.querySelectorAll(
@@ -305,7 +442,6 @@ function initListeners() {
     restartGameButtons.forEach((button) => {
         button.addEventListener('click', () => {
             const modal = button.closest('.modal');
-            console.log('reset button pressed');
             closeModal(modal);
             clearInterval(levelInterval);
             resetGameDefault();
@@ -377,22 +513,23 @@ function homePage() {
     monster.sit();
     hero.hang();
     monster.heroHolder.add(hero.mesh);
-    TweenMax.to(this, 1, { speed: 0 });
-    TweenMax.to(camera.position, 3, { z: cameraPosGameOver, y: 60, x: -30 });
+    gsap.to(this, 1, { speed: 0 });
+    gsap.to(camera.position, 3, { z: cameraPosGameOver, y: 60, x: -30 });
     vaccine.mesh.visible = false;
     obstacle.mesh.visible = false;
     clearInterval(levelInterval);
 }
 
 function gameOver() {
-    fieldGameOver.className = "show";
-    state.gameStatus = "gameOver";
+    fieldGameOver.className = 'show';
+    state.gameStatus = 'gameOver';
+    scene.fog.near = outFogNear;
     monster.sit();
     hero.hang();
     monster.heroHolder.add(hero.mesh);
-    TweenMax.to(this, 1, { speed: 0 });
-    TweenMax.to(camera.position, 3, { z: cameraPosGameOver, y: 60, x: -30 });
+    gsap.to(this, 1, { speed: 0 });
+    gsap.to(camera.position, 3, { z: cameraPosGameOver, y: 60, x: -30 });
     vaccine.mesh.visible = false;
-    // obstacle.mesh.visible = false;
+    obstacle.mesh.visible = false;
     clearInterval(levelInterval);
 }

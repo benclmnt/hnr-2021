@@ -6,28 +6,30 @@ export default class Vaccine {
     constructor() {
         this.angle = 0;
         this.mesh = new THREE.Group();
-        
-        var bodyGeom = new THREE.CylinderGeometry(2, 2, 8, 9, 1);
+
+        const bodyGeom = new THREE.CylinderGeometry(2, 2, 8, 9, 1);
         this.body = new THREE.Mesh(bodyGeom, Material.PhongWhite);
 
-        var sharpGeom = new THREE.CylinderGeometry(2, .2, 3, 9, 1);
+        const sharpGeom = new THREE.CylinderGeometry(2, 0.2, 3, 9, 1);
         this.sharp = new THREE.Mesh(sharpGeom, Material.PhongWhite);
-        sharpGeom.applyMatrix(new THREE.Matrix4().makeTranslation(0, -5, 0));
+        sharpGeom.applyMatrix4(new THREE.Matrix4().makeTranslation(0, -5, 0));
 
-        var coverGeom = new THREE.CylinderGeometry(2, 2, .5, 9, 1);
+        const coverGeom = new THREE.CylinderGeometry(2, 2, 0.5, 9, 1);
         this.cover = new THREE.Mesh(coverGeom, Material.PhongWhite);
-        coverGeom.applyMatrix(new THREE.Matrix4().makeTranslation(0, 8, 0));
+        coverGeom.applyMatrix4(new THREE.Matrix4().makeTranslation(0, 8, 0));
 
-        var coverBottomGeom = new THREE.CylinderGeometry(3, 3, .5, 9, 1);
+        const coverBottomGeom = new THREE.CylinderGeometry(3, 3, 0.5, 9, 1);
         this.coverBottom = new THREE.Mesh(coverBottomGeom, Material.PhongWhite);
-        coverBottomGeom.applyMatrix(new THREE.Matrix4().makeTranslation(0, 4, 0));
+        coverBottomGeom.applyMatrix4(
+            new THREE.Matrix4().makeTranslation(0, 4, 0),
+        );
 
-        var needleGeom = new THREE.CylinderGeometry(.2, .2, 4, 9, 1);
+        const needleGeom = new THREE.CylinderGeometry(0.2, 0.2, 4, 9, 1);
         this.needle = new THREE.Mesh(needleGeom, Material.PhongWhite);
-        needleGeom.applyMatrix(new THREE.Matrix4().makeTranslation(0, -8, 0));
+        needleGeom.applyMatrix4(new THREE.Matrix4().makeTranslation(0, -8, 0));
 
-        var topGeom = new THREE.CylinderGeometry(.7, .7, 3, 9, 1);
-        topGeom.applyMatrix(new THREE.Matrix4().makeTranslation(0, 6, 0));
+        const topGeom = new THREE.CylinderGeometry(0.7, 0.7, 3, 9, 1);
+        topGeom.applyMatrix4(new THREE.Matrix4().makeTranslation(0, 6, 0));
         this.top = new THREE.Mesh(topGeom, Material.PhongWhite);
 
         this.mesh.add(this.body);
@@ -42,6 +44,6 @@ export default class Vaccine {
                 object.castShadow = true;
                 object.receiveShadow = true;
             }
-    });
+        });
     }
 }

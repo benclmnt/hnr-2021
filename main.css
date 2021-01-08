@@ -196,7 +196,7 @@ ul {
     position: relative;
     font-family: 'Voltaire', sans-serif;
     text-transform: uppercase;
-    color: #ffa873;
+    color: #ffffff;
     font-size: 12px;
     letter-spacing: 2px;
     text-align: center;
@@ -206,7 +206,7 @@ ul {
 #distValue {
     position: relative;
     text-transform: uppercase;
-    color: #dc5f45;
+    color: #ffffff;
     font-size: 40px;
     font-family: 'Voltaire';
     text-align: center;
