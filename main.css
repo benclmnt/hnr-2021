@@ -1,97 +1,231 @@
-@import url('https://fonts.googleapis.com/css?family=Voltaire');
+@import url("https://fonts.googleapis.com/css?family=Voltaire");
 
-html, body {
+html,
+body {
   height: 100%;
   padding: 0;
   margin: 0;
 }
-*, *:before, *:after {
+*,
+*:before,
+*:after {
   box-sizing: border-box;
   -webkit-tap-highlight-color: transparent;
-
 }
 
-blockquote, dd, div, dl, dt, form, h1, h2, h3, h4, h5, h6, li, ol, p, pre, td, th, ul {
+blockquote,
+dd,
+div,
+dl,
+dt,
+form,
+h1,
+h2,
+h3,
+h4,
+h5,
+h6,
+li,
+ol,
+p,
+pre,
+td,
+th,
+ul {
   margin: 0;
   padding: 0;
 }
 
-#world{
+#world {
   position: absolute;
-  width:100%;
+  width: 100%;
   height: 100%;
-  background-color: #AAAAAA;
+  background-color: #aaaaaa;
   overflow: hidden;
 }
 
+*,
+*::after,
+*::before {
+  box-sizing: border-box;
+}
 
-#gameoverInst{
-  position:absolute;
-  font-family:'Voltaire', sans-serif;
-  font-weight:bold;
+.modal {
+  position: fixed;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%) scale(0);
+  transition: 200ms ease-in-out;
+  border: 1px solid black;
+  border-radius: 10px;
+  z-index: 10;
+  background-color: white;
+  width: 175px;
+  max-width: 80%;
+  align-content: center;
+}
+
+.modal.active {
+  transform: translate(-50%, -50%) scale(1);
+}
+
+.modal-header {
+  padding: 10px 15px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  border-bottom: 1px solid black;
+}
+
+.modal-header .title {
+  font-size: 1.25rem;
+  font-weight: bold;
+  font-family: "Voltaire", sans-serif;
+  color: #dc5f45;
+}
+
+.modal-header .close-button {
+  cursor: pointer;
+  border: none;
+  outline: none;
+  background: none;
+  font-size: 1.25rem;
+  font-weight: bold;
+}
+
+.btn {
+  display: inline-block;
+  padding: 0.5em 1.8em;
+  border: 0.1em solid #5f9042;
+  margin: 0.3em 0.3em 0.3em 0;
+  width: 100px;
+  border-radius: 0.12em;
+  box-sizing: border-box;
+  text-decoration: none;
+  font-family: "Voltaire", sans-serif;
+  font-weight: 300;
+  color: #5f9042;
+  text-align: center;
+  transition: all 0.2s;
+}
+
+.btn:hover {
+  color: #000000;
+  background-color: #ffffff;
+}
+
+.modal-body {
+  padding: 10px 15px;
+  font-family: "Voltaire", sans-serif;
+  color: #5f9042;
+  margin: 0;
+  top: 50%;
+  margin-left: 20px;
+}
+
+#overlay {
+  position: fixed;
+  opacity: 0;
+  transition: 200ms ease-in-out;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: rgba(0, 0, 0, 0.5);
+  pointer-events: none;
+}
+
+#overlay.active {
+  opacity: 1;
+  pointer-events: all;
+}
+
+#gameoverInst {
+  position: absolute;
+  font-family: "Voltaire", sans-serif;
+  font-weight: bold;
   text-transform: uppercase;
-  font-size:120px;
-  text-align:center;
-  color:#ffc5a2;
-  opacity:0;
-  left:50%;
-  top:50%;
-  width:100%;
-  transform : translate(-50%,-100%);
+  font-size: 120px;
+  text-align: center;
+  color: #ffc5a2;
+  opacity: 0;
+  left: 50%;
+  top: 50%;
+  width: 100%;
+  transform: translate(-50%, -100%);
   user-select: none;
   transition: all 500ms ease-in-out;
 }
-
 #gameoverInst.show {
-  opacity:1;
-  transform : translate(-50%,-50%);
+  opacity: 1;
+  transform: translate(-50%, -50%);
   transition: all 500ms ease-in-out;
 }
 
+#homePage {
+  position: absolute;
+  font-family: "Voltaire", sans-serif;
+  font-weight: bold;
+  text-transform: uppercase;
+  font-size: 120px;
+  text-align: center;
+  color: #ffc5a2;
+  opacity: 0;
+  left: 50%;
+  top: 50%;
+  width: 100%;
+  transform: translate(-50%, -100%);
+  user-select: none;
+  transition: all 500ms ease-in-out;
+}
+#homePage.show {
+  opacity: 1;
+  transform: translate(-50%, -50%);
+  transition: all 500ms ease-in-out;
+}
 
-#dist{
-  position:absolute;
-  left:50%;
-  top:50px;
-  transform:translate(-50%,0%);
+#dist {
+  position: absolute;
+  left: 50%;
+  top: 50px;
+  transform: translate(-50%, 0%);
   user-select: none;
 }
 
-.label{
-  position:relative;
-  font-family:'Voltaire', sans-serif;
-  text-transform:uppercase;
-  color:#ffa873;
-  font-size:12px;
-  letter-spacing:2px;
-  text-align:center;
-  margin-bottom:5px;
-}
-
-
-#distValue{
-  position:relative;
-  text-transform:uppercase;
-  color:#dc5f45;
-  font-size:40px;
-  font-family:'Voltaire';
-  text-align:center;
-}
-
-#instructions{
-  position:absolute;
-  width:100%;
-  bottom:0;
-  margin: auto;
-  margin-bottom:50px;
-  font-family:'Voltaire', sans-serif;
-  color:#dc5f45;
-  font-size:16px;
-  letter-spacing:1px;
+.label {
+  position: relative;
+  font-family: "Voltaire", sans-serif;
   text-transform: uppercase;
-  text-align : center;
+  color: #ffa873;
+  font-size: 12px;
+  letter-spacing: 2px;
+  text-align: center;
+  margin-bottom: 5px;
+}
+
+#distValue {
+  position: relative;
+  text-transform: uppercase;
+  color: #dc5f45;
+  font-size: 40px;
+  font-family: "Voltaire";
+  text-align: center;
+}
+
+#instructions {
+  position: absolute;
+  width: 100%;
+  bottom: 0;
+  margin: auto;
+  margin-bottom: 50px;
+  font-family: "Voltaire", sans-serif;
+  color: #dc5f45;
+  font-size: 16px;
+  letter-spacing: 1px;
+  text-transform: uppercase;
+  text-align: center;
   user-select: none;
 }
 .lightInstructions {
-  color:#5f9042;
+  color: #5f9042;
 }
