@@ -2,11 +2,8 @@ import * as THREE from 'https://unpkg.com/three/build/three.module.js';
 import { shadowLight } from './lights.js';
 import floor from './floor.js';
 import Hero from './hero.js';
-<<<<<<< HEAD
 import Vaccine from './vaccine.js';
-=======
 import Monster from './monster.js';
->>>>>>> 997623e13f66c306fb4310116bfddf4e6c4b22fc
 import Trunc from './trunc.js';
 import state from './gameState.js';
 
@@ -98,7 +95,8 @@ function createHero() {
 function createVaccine() {
     vaccine = new Vaccine();
     scene.add(vaccine.mesh);
-    
+}
+
 function createMonster() {
     monster = new Monster();
     monster.mesh.position.z = 20;
@@ -154,6 +152,7 @@ function updateVaccinePosition() {
     vaccine.mesh.rotation.z = Math.PI / 2 - (state.floorRotation + vaccine.angle);
     vaccine.mesh.position.y = -floorRadius + Math.sin(state.floorRotation + vaccine.angle) * (floorRadius + 50);
     vaccine.mesh.position.x = Math.cos(state.floorRotation + vaccine.angle) * (floorRadius + 50);
+}
 
 function updateMonsterPosition() {
     monster.run();
@@ -353,7 +352,7 @@ function homePage() {
     monster.heroHolder.add(hero.mesh);
     TweenMax.to(this, 1, { speed: 0 });
     TweenMax.to(camera.position, 3, { z: cameraPosGameOver, y: 60, x: -30 });
-    // carrot.mesh.visible = false;
+    vaccine.mesh.visible = false;
     // obstacle.mesh.visible = false;
     clearInterval(levelInterval);
 }
