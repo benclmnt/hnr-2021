@@ -8,6 +8,7 @@ import state from './gameState.js';
 
 let scene, camera, clock, renderer;
 
+var audio = new Audio('https://drive.google.com/file/d/13dP8QP50JFN1L9WLDgODzmvjMf9er933/view');
 let monsterAcceleration = 0.004;
 let malusClearColor = 0xb44b39;
 let malusClearAlpha = 0;
