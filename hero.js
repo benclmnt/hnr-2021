@@ -1,5 +1,6 @@
 import * as THREE from 'https://unpkg.com/three/build/three.module.js';
 import * as Material from './materials.js';
+import state from './gameState.js';
 
 export default class Hero {
     constructor() {
@@ -162,9 +163,9 @@ export default class Hero {
     run() {
         this.status = "running";
 
-        let s = Math.min(speed, maxSpeed);
+        let s = Math.min(state.speed, state.maxSpeed);
 
-        this.runningCycle += delta * s * .7;
+        this.runningCycle += state.delta * s * .7;
         this.runningCycle = this.runningCycle % (Math.PI * 2);
         let t = this.runningCycle;
 
@@ -231,7 +232,7 @@ export default class Hero {
         if (this.status == "jumping") return;
         this.status = "jumping";
         let _this = this;
-        let totalSpeed = 10 / speed;
+        let totalSpeed = 10 / state.speed;
         let jumpHeight = 45;
 
         TweenMax.to(this.earL.rotation, totalSpeed, { x: "+=.3", ease: Back.easeOut });

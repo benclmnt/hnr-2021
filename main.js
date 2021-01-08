@@ -1,13 +1,12 @@
 import * as THREE from 'https://unpkg.com/three/build/three.module.js';
-import * as Material from './materials.js';
+
 import { shadowLight } from './lights.js';
 import floor from './floor.js';
 import Hero from './hero.js';
-import { initGameState, gameLimit } from './gameState.js';
+import state from './gameState.js';
 
 let scene, camera, clock, renderer;
 
-let delta = 0;
 let monsterAcceleration = 0.004;
 let malusClearColor = 0xb44b39;
 let malusClearAlpha = 0;
@@ -29,15 +28,6 @@ let hero, monster;
 let fieldGameOver, fieldDistance;
 
 // game status
-let {
-    speed,
-    distance,
-    level,
-    gameStatus,
-    floorRotation,
-    monsterPos,
-    monsterPosTarget } = initGameState;
-let { maxSpeed } = gameLimit;
 let levelInterval; // increase level interval
 let levelUpdateFreq = 3000; // 3s
 
@@ -78,6 +68,7 @@ function initScreenAnd3D() {
     clock = new THREE.Clock();
 
     initListeners();
+    initUI();
 }
 
 function createLights() {
@@ -97,29 +88,40 @@ function createHero() {
     hero.nod();
 }
 
-function initUI() {
-    fieldDistance = document.getElementById("distValue");
-    fieldGameOver = document.getElementById("gameoverInst");
-}
-
 function loop() {
-    delta = clock.getDelta();
+    state.delta = clock.getDelta();
     updateFloorRotation();
+
+    if (state.gameStatus == "play") {
+        if (hero.status == "running") {
+            hero.run();
+        }
+
+        updateDistance();
+    }
 
     renderer.render(scene, camera);
     requestAnimationFrame(loop);
 }
 
-// game
+/**
+ * GAME functions
+ */
+
 function updateLevel() {
-    if (speed >= maxSpeed) return;
-    level++;
-    speed += 2;
+    if (state.speed >= state.maxSpeed) return;
+    state.level++;
+    state.speed += 2;
+}
+
+function updateDistance() {
+    state.distance += state.delta * state.speed;
+    fieldDistance.innerHTML = Math.floor(state.distance / 2);
 }
 
 function updateFloorRotation() {
-    floorRotation = (floorRotation + delta * .03 * speed) % (Math.PI * 2);
-    floor.rotation.z = floorRotation;
+    state.floorRotation = (state.floorRotation + state.delta * .03 * state.speed) % (Math.PI * 2);
+    floor.rotation.z = state.floorRotation;
 }
 
 function resetGameDefault() {
@@ -131,15 +133,10 @@ function resetGameDefault() {
     hero.mesh.position.set(0, 0, 0);
     hero.mesh.rotation.y = Math.PI / 2;
 
-    speed = initGameState.speed;
-    level = initGameState.level - 1;
-    distance = initGameState.distance;
-    gameStatus = initGameState.gameStatus;
-
-    monsterPos = initGameState.monsterPos;
-    monsterPosTarget = initGameState.monsterPosTarget;
+    state.reset();
 
     hero.status = "running";
+    console.log("hero", hero);
     hero.nod();
 
     // audio.play();
@@ -148,10 +145,33 @@ function resetGameDefault() {
 
 }
 
-// listeners utilities
+// main function
+
+function init(event) {
+    initScreenAnd3D();
+    createLights();
+    createFloor();
+    createHero();
+    resetGameDefault();
+    loop();
+}
+
+init();
+
+
+/**
+ * UI Utilities
+ */
+
+function initUI() {
+    fieldDistance = document.getElementById("distValue");
+    fieldGameOver = document.getElementById("gameoverInst");
+}
 
 function initListeners() {
-    window.addEventListener('resize', handleWindowResize, false);
+    window.addEventListener('resize', handleWindowResize);
+    document.addEventListener('mousedown', handleMouseDown);
+    document.addEventListener("touchend", handleMouseDown);
     document.addEventListener("keydown", function(event) {
         if (event.key === 'Escape'){
            // Esc key was pressed
@@ -184,17 +204,17 @@ function closeModal(modal) {
 }
 
 function handleEscape() {
-    if (gameStatus == "paused") {
+    if (state.gameStatus == "paused") {
         const modals = document.querySelectorAll('.modal.active');
         modals.forEach(modal => {
             closeModal(modal)
         })
-        gameStatus = "play"
+        state.gameStatus = "play"
         clock.start()
         loop()
-    } else if (gameStatus == "play") {
+    } else if (state.gameStatus == "play") {
         const modal = document.querySelector('#modal')
-        gameStatus = "paused"
+        state.gameStatus = "paused"
         openModal(modal)
     }
 }
@@ -207,17 +227,10 @@ function handleWindowResize() {
     camera.updateProjectionMatrix();
 }
 
-// main function
-
-function init(event) {
-    initScreenAnd3D();
-    initUI();
-    createLights();
-    createFloor();
-    createHero();
-    initUI();
-    resetGameDefault();
-    loop();
+function handleMouseDown(event) {
+    if (state.gameStatus == "play") {
+        hero.jump();
+    } else if (state.gameStatus == "readyToReplay") {
+        replay();
+    }
 }
-
-init();
