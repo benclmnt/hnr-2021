@@ -9,10 +9,12 @@ import Virus from './virus.js';
 import Trunc from './trunc.js';
 import state from './gameState.js';
 
+const STORAGE_HS = 'hs';
+
 let scene, camera, clock, renderer;
 
 const audio = new Audio(
-    'https://drive.google.com/file/d/13dP8QP50JFN1L9WLDgODzmvjMf9er933/view?usp=sharing',
+    'https://raw.githubusercontent.com/kevnw/coro-jump/master/escape.mp3',
 );
 let monsterAcceleration = 0.004;
 let malusClearColor = 0x000000;
@@ -34,7 +36,7 @@ const cameraPosGameOver = 260;
 // characters
 let hero, monster, vaccine, obstacle, bonusParticles;
 
-let fieldGameOver, fieldHomePage, fieldDistance;
+let fieldGameOver, fieldDistance;
 
 // game status
 let levelInterval; // increase level interval
@@ -128,7 +130,7 @@ function createObstacle() {
 }
 
 function loop() {
-    console.log (state.gameStatus);
+    console.log(state.gameStatus);
     state.delta = clock.getDelta();
     updateFloorRotation();
 
@@ -229,7 +231,7 @@ function checkCollision() {
         getBonus();
     }
 
-    if (dm.length() < state.collisionObstacle && obstacle.status != "flying") {
+    if (dm.length() < state.collisionObstacle && obstacle.status != 'flying') {
         getMalus();
     }
 }
@@ -240,34 +242,44 @@ function getBonus() {
     bonusParticles.explode();
     vaccine.angle += Math.PI / 2;
     //speed*=.95;
-    state.monsterPosTarget += .025;
+    state.monsterPosTarget += 0.025;
 }
 
 function getMalus() {
-    obstacle.status = "flying";
-    var tx = (Math.random() > .5) ? -20 - Math.random() * 10 : 20 + Math.random() * 5;
-    TweenMax.to(obstacle.mesh.position, 4, { x: tx, y: Math.random() * 50, z: 350, ease: Power4.easeOut });
+    obstacle.status = 'flying';
+    var tx =
+        Math.random() > 0.5 ? -20 - Math.random() * 10 : 20 + Math.random() * 5;
+    TweenMax.to(obstacle.mesh.position, 4, {
+        x: tx,
+        y: Math.random() * 50,
+        z: 350,
+        ease: Power4.easeOut,
+    });
     TweenMax.to(obstacle.mesh.rotation, 4, {
-        x: Math.PI * 3, z: Math.PI * 3, y: Math.PI * 6, ease: Power4.easeOut, onComplete: function () {
-            obstacle.status = "ready";
+        x: Math.PI * 3,
+        z: Math.PI * 3,
+        y: Math.PI * 6,
+        ease: Power4.easeOut,
+        onComplete: function () {
+            obstacle.status = 'ready';
             obstacle.body.rotation.y = Math.random() * Math.PI * 2;
-            obstacle.angle = -state.floorRotation - Math.random() * .4;
+            obstacle.angle = -state.floorRotation - Math.random() * 0.4;
 
             obstacle.angle = obstacle.angle % (Math.PI * 2);
             obstacle.mesh.rotation.x = 0;
             obstacle.mesh.rotation.y = 0;
             obstacle.mesh.rotation.z = 0;
             obstacle.mesh.position.z = 0;
-
-        }
+        },
     });
     //
-    state.monsterPosTarget -= .04;
-    TweenMax.from(this, .5, {
-        malusClearAlpha: .5, onUpdate: function () {
+    state.monsterPosTarget -= 0.04;
+    TweenMax.from(this, 0.5, {
+        malusClearAlpha: 0.5,
+        onUpdate: function () {
             renderer.setClearColor(malusClearColor, malusClearAlpha);
-        }
-    })
+        },
+    });
 }
 
 function resetGameDefault() {
@@ -294,8 +306,7 @@ function replay() {
     scene.fog.near = initFogNear;
 
     fieldGameOver.className = '';
-    fieldHomePage.className = "";
-    
+
     gsap.killTweensOf(monster.pawFL.position);
     gsap.killTweensOf(monster.pawFR.position);
     gsap.killTweensOf(monster.pawBL.position);
@@ -394,15 +405,15 @@ function init() {
     if (state.gameStatus != 'beginning') {
         resetGameDefault();
     } else {
-        console.log("masuk sini");
+        console.log('masuk sini');
         state.gameStatus = 'play';
         homePage();
-        console.log ("STATE = " ,state.gameStatus)
+        console.log('STATE = ', state.gameStatus);
     }
     loop();
 }
 
-init()
+init();
 
 /**
  * UI Utilities
@@ -411,11 +422,20 @@ init()
 function initUI() {
     fieldDistance = document.getElementById('distValue');
     fieldGameOver = document.getElementById('gameoverInst');
-    fieldHomePage = document.getElementById('homePage');
+
+    // set highscore
+    if (!window.localStorage.getItem(STORAGE_HS)) {
+        window.localStorage.setItem(STORAGE_HS, JSON.stringify([]));
+    }
+
+    initHSTable();
 }
 
 function initListeners() {
     window.addEventListener('resize', handleWindowResize);
+    audio.addEventListener('ended', () => {
+        this.play();
+    }); // replay on audio end.
     document.addEventListener('mousedown', handleMouseDown);
     document.addEventListener('touchend', handleMouseDown);
     document.addEventListener('keydown', function (event) {
@@ -424,7 +444,8 @@ function initListeners() {
             handleEscape();
         }
 
-        if (event.key === ' ') { // spacebar
+        if (event.key === ' ') {
+            // spacebar
             handleMouseDown(event);
         }
     });
@@ -512,7 +533,7 @@ function handleMouseDown(event) {
 }
 
 function homePage() {
-    fieldHomePage.className = 'show';
+    fieldGameOver.className = 'show';
     state.gameStatus = 'play';
     monster.sit();
     hero.hang();
@@ -524,9 +545,45 @@ function homePage() {
     clearInterval(levelInterval);
 }
 
+// HIGH SCORE UTILS
+function initHSTable() {
+    const highscores = JSON.parse(window.localStorage.getItem(STORAGE_HS));
+    const table = fieldGameOver.querySelector('#highscore');
+    table.innerHTML = `
+        <thead>
+            <th style="width: 200px;">Date, Time</th>
+            <th style="width: 100px;">Score</th>
+        </thead>
+    `;
+    highscores.forEach(({ score, date }) => {
+        let tr = document.createElement('tr');
+        tr.innerHTML = `<td>${new Date(
+            date,
+        ).toLocaleString()}</td><td>${score}</td>`;
+        table.appendChild(tr);
+    });
+}
+
+function updateHighScore(score) {
+    let highscores = JSON.parse(window.localStorage.getItem(STORAGE_HS));
+    const obj = { score, date: new Date() };
+    highscores.push(obj);
+    highscores.sort((a, b) => b.score - a.score); // sort descending
+    if (highscores.length > 5) {
+        highscores = highscores.slice(0, 5); // take top 5
+    }
+    window.localStorage.setItem(STORAGE_HS, JSON.stringify(highscores));
+    initHSTable();
+}
+
 function gameOver() {
     fieldGameOver.className = 'show';
+    fieldGameOver.querySelector('#banner').innerHTML = 'Game Over';
+
     state.gameStatus = 'gameOver';
+    state._floorRotation = 0; // TODO: check if this is working?
+    updateHighScore(Number(fieldDistance.innerHTML));
+
     scene.fog.near = outFogNear;
     monster.sit();
     hero.hang();

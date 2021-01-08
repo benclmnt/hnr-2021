@@ -145,7 +145,7 @@ ul {
     font-family: 'Voltaire', sans-serif;
     font-weight: bold;
     text-transform: uppercase;
-    font-size: 120px;
+    font-size: 20px;
     text-align: center;
     color: #ffc5a2;
     opacity: 0;
@@ -157,28 +157,6 @@ ul {
     transition: all 500ms ease-in-out;
 }
 #gameoverInst.show {
-    opacity: 1;
-    transform: translate(-50%, -50%);
-    transition: all 500ms ease-in-out;
-}
-
-#homePage {
-    position: absolute;
-    font-family: 'Voltaire', sans-serif;
-    font-weight: bold;
-    text-transform: uppercase;
-    font-size: 120px;
-    text-align: center;
-    color: #ffc5a2;
-    opacity: 0;
-    left: 50%;
-    top: 50%;
-    width: 100%;
-    transform: translate(-50%, -100%);
-    user-select: none;
-    transition: all 500ms ease-in-out;
-}
-#homePage.show {
     opacity: 1;
     transform: translate(-50%, -50%);
     transition: all 500ms ease-in-out;
@@ -230,24 +208,13 @@ ul {
     color: #5f9042;
 }
 
-#homePage {
-    position: absolute;
-    font-family: 'Voltaire', sans-serif;
-    font-weight: bold;
-    text-transform: uppercase;
-    font-size: 120px;
-    text-align: center;
-    color: #ffc5a2;
-    opacity: 0;
-    left: 50%;
-    top: 50%;
-    width: 100%;
-    transform: translate(-50%, -100%);
-    user-select: none;
-    transition: all 500ms ease-in-out;
+#gameoverInst table {
+    color: white;
+    font-size: 20px;
+    padding-top: 10px;
+    margin: auto;
 }
-#homePage.show {
-    opacity: 1;
-    transform: translate(-50%, -50%);
-    transition: all 500ms ease-in-out;
+
+#gameoverInst #banner {
+    padding-bottom: 0;
 }
