@@ -1,13 +1,3 @@
-// export const initGameState = {
-//     delta: 0,
-//     level: 1,
-//     distance: 0,
-//     speed: 5,
-//     gameStatus: "play",
-//     floorRotation: 0,
-//     monsterPos: .65,
-//     monsterPosTarget: .65
-// }
 class GameState {
     constructor() {
         this._delta = 0,
@@ -18,8 +8,12 @@ class GameState {
         this._floorRotation = 0,
         this._monsterPos = .65,
         this._monsterPosTarget = .65
+
+        // only getter
         this._maxSpeed = 48;
     }
+
+    get maxSpeed() { return this._maxSpeed; }
 
     set delta(val) { this._delta = val; }
     get delta() { return this._delta; }

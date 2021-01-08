@@ -136,13 +136,11 @@ function resetGameDefault() {
     state.reset();
 
     hero.status = "running";
-    console.log("hero", hero);
     hero.nod();
 
     // audio.play();
     updateLevel();
     levelInterval = setInterval(updateLevel, levelUpdateFreq);
-
 }
 
 // main function
@@ -152,6 +150,7 @@ function init(event) {
     createLights();
     createFloor();
     createHero();
+    // renderer.render(scene, camera);
     resetGameDefault();
     loop();
 }
