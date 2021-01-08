@@ -26,7 +26,7 @@ const fov = 50; // field of view
 let cameraPosGameOver = 160;
 
 // characters
-let hero, monster, vaccine;
+let hero, monster, vaccine, obstacle;
 
 let fieldGameOver, fieldHomePage, fieldDistance;
 
@@ -126,6 +126,7 @@ function loop() {
         updateDistance();
         updateVaccinePosition();
         updateMonsterPosition();
+        updateObstaclePosition();
     }
 
     renderer.render(scene, camera);
@@ -176,6 +177,21 @@ function updateMonsterPosition() {
     monster.mesh.position.y = - floorRadius + Math.sin(angle) * (floorRadius + 12);
     monster.mesh.position.x = Math.cos(angle) * (floorRadius + 15);
     monster.mesh.rotation.z = -Math.PI / 2 + angle;
+}
+
+function updateObstaclePosition() {
+    if (obstacle.status == "flying") return;
+
+    // TODO fix this,
+    if (state.floorRotation + obstacle.angle > 2.5) {
+        obstacle.angle = -state.floorRotation + Math.random() * .3;
+        obstacle.body.rotation.y = Math.random() * Math.PI * 2;
+    }
+
+    obstacle.mesh.rotation.z = state.floorRotation + obstacle.angle - Math.PI / 2;
+    obstacle.mesh.position.y = -floorRadius + Math.sin(state.floorRotation + obstacle.angle) * (floorRadius + 3);
+    obstacle.mesh.position.x = Math.cos(state.floorRotation + obstacle.angle) * (floorRadius + 3);
+
 }
 
 function resetGameDefault() {
@@ -244,6 +260,7 @@ function init() {
     createHero();
     createVaccine();
     createFirs();
+    createObstacle();
     resetGameDefault();
     loop();
 }
@@ -363,7 +380,7 @@ function homePage() {
     TweenMax.to(this, 1, { speed: 0 });
     TweenMax.to(camera.position, 3, { z: cameraPosGameOver, y: 60, x: -30 });
     vaccine.mesh.visible = false;
-    // obstacle.mesh.visible = false;
+    obstacle.mesh.visible = false;
     clearInterval(levelInterval);
 }
 
