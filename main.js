@@ -2,6 +2,7 @@ import * as THREE from 'https://unpkg.com/three/build/three.module.js';
 import * as Material from './materials.js';
 import { shadowLight } from './lights.js';
 import floor from './floor.js';
+import Hero from './hero.js';
 
 let scene, camera, renderer, backLight;
 
@@ -20,6 +21,9 @@ const farPlane = 2000;
 const fov = 50; // field of view
 let cameraPosGame = 160;
 let cameraPosGameOver = 260;
+
+// characters
+let hero, monster;
 
 let fieldGameOver, fieldDistance;
 
@@ -71,6 +75,13 @@ function createFloor() {
     scene.add(floor);
 }
 
+function createHero() {
+    hero = new Hero();
+    hero.mesh.rotation.y = Math.PI / 2;
+    scene.add(hero.mesh);
+    hero.nod();
+}
+
 function initUI() {
     fieldDistance = document.getElementById("distValue");
     fieldGameOver = document.getElementById("gameoverInst");
@@ -81,7 +92,6 @@ function initUI() {
 function handleWindowResize() {
     const HEIGHT = window.innerHeight;
     const WIDTH = window.innerWidth;
-    console.log(HEIGHT, WIDTH);
     renderer.setSize(WIDTH, HEIGHT);
     camera.aspect = WIDTH / HEIGHT;
     camera.updateProjectionMatrix();
@@ -97,6 +107,7 @@ function init(event) {
     initUI();
     createLights();
     createFloor();
+    createHero();
     initUI();
     loop();
 }
