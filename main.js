@@ -3,6 +3,7 @@ import { shadowLight } from './lights.js';
 import floor from './floor.js';
 import Hero from './hero.js';
 import Monster from './monster.js';
+import Virus from './virus.js';
 import Trunc from './trunc.js';
 import state from './gameState.js';
 
@@ -96,6 +97,15 @@ function createMonster() {
     //monster.mesh.scale.set(1.2,1.2,1.2);
     scene.add(monster.mesh);
     updateMonsterPosition();
+}
+
+function createObstacle() {
+    obstacle = new Virus();
+    obstacle.body.rotation.y = -Math.PI / 2;
+    obstacle.mesh.scale.set(1.1, 1.1, 1.1);
+    obstacle.mesh.position.y = floorRadius + 4;
+    obstacle.nod();
+    scene.add(obstacle.mesh);
 }
 
 function loop() {
