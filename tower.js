@@ -9,9 +9,9 @@ import {
 
 import * as THREE from 'https://unpkg.com/three/build/three.module.js';
 
-export default class Trunc {
+export default class Tower {
     constructor() {
-        const truncHeight = 35 + Math.random() * 100;
+        const towerHeight = 35 + Math.random() * 100;
         const topRadius = 15 + Math.random() * 5;
         const bottomRadius = 20 + Math.random() * 5;
         const mats = [
@@ -22,18 +22,18 @@ export default class Trunc {
             PhongYellow,
             PhongSkin,
         ];
-        const matTrunc = PhongBlack; //mats[Math.floor(Math.random()*mats.length)];
+        const matTower = PhongBlack; //mats[Math.floor(Math.random()*mats.length)];
 
         const geom = new THREE.CubeGeometry(
             bottomRadius,
-            truncHeight,
+            towerHeight,
             topRadius,
         );
         geom.applyMatrix4(
-            new THREE.Matrix4().makeTranslation(0, truncHeight / 2, 0),
+            new THREE.Matrix4().makeTranslation(0, towerHeight / 2, 0),
         );
 
-        this.mesh = new THREE.Mesh(geom, matTrunc);
+        this.mesh = new THREE.Mesh(geom, matTower);
 
         for (let i = 0; i < 8; i++) {
             if (i != 0 && i != 5) continue;

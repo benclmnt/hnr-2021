@@ -6,10 +6,11 @@ import Hero from './hero.js';
 import Vaccine from './vaccine.js';
 import Monster from './monster.js';
 import Virus from './virus.js';
-import Trunc from './trunc.js';
+import Tower from './tower.js';
 import state from './gameState.js';
 
 const STORAGE_HS = 'hs';
+const browserPrefixes = ['moz', 'ms', 'o', 'webkit'];
 
 let scene, camera, clock, renderer;
 
@@ -114,6 +115,38 @@ function createMonster() {
     updateMonsterPosition();
 }
 
+function createBuilding() {
+    const nBuildings = 100;
+    for (let i = 0; i < nBuildings; i++) {
+        const phi = (i * (Math.PI * 2)) / nBuildings;
+        let theta = Math.PI / 2;
+        //theta += .25 + Math.random()*.3;
+        theta +=
+            Math.random() > 0.05
+                ? 0.25 + Math.random() * 0.3
+                : -0.35 - Math.random() * 0.1;
+
+        const fir = new Building();
+        fir.mesh.position.x = Math.sin(theta) * Math.cos(phi) * floorRadius;
+        fir.mesh.position.y =
+            Math.sin(theta) * Math.sin(phi) * (floorRadius - 10);
+        fir.mesh.position.z = Math.cos(theta) * floorRadius;
+
+        const vec = fir.mesh.position.clone();
+        const axis = new THREE.Vector3(0, 1, 0);
+        fir.mesh.quaternion.setFromUnitVectors(axis, vec.clone().normalize());
+        floor.add(fir.mesh);
+    }
+}
+
+class Building {
+    constructor() {
+        this.mesh = new THREE.Object3D();
+        this.tower = new Tower();
+        this.mesh.add(this.tower.mesh);
+    }
+}
+
 function createBonusParticles() {
     bonusParticles = new BonusParticles();
     bonusParticles.mesh.visible = false;
@@ -131,6 +164,7 @@ function createObstacle() {
 
 function loop() {
     state.delta = clock.getDelta();
+    console.log('state', state.gameStatus);
     updateFloorRotation();
 
     if (state.gameStatus == 'play') {
@@ -202,8 +236,6 @@ function updateMonsterPosition() {
     monster.mesh.rotation.z = -Math.PI / 2 + angle;
 }
 
-// OBSTACLE RELATED
-
 function updateObstaclePosition() {
     if (obstacle.status == 'flying') return;
 
@@ -223,8 +255,8 @@ function updateObstaclePosition() {
 }
 
 function checkCollision() {
-    var db = hero.mesh.position.clone().sub(vaccine.mesh.position.clone());
-    var dm = hero.mesh.position.clone().sub(obstacle.mesh.position.clone());
+    const db = hero.mesh.position.clone().sub(vaccine.mesh.position.clone());
+    const dm = hero.mesh.position.clone().sub(obstacle.mesh.position.clone());
 
     if (db.length() < state.collisionBonus) {
         getBonus();
@@ -246,15 +278,15 @@ function getBonus() {
 
 function getMalus() {
     obstacle.status = 'flying';
-    var tx =
+    const tx =
         Math.random() > 0.5 ? -20 - Math.random() * 10 : 20 + Math.random() * 5;
-    TweenMax.to(obstacle.mesh.position, 4, {
+    gsap.to(obstacle.mesh.position, 4, {
         x: tx,
         y: Math.random() * 50,
         z: 350,
         ease: Power4.easeOut,
     });
-    TweenMax.to(obstacle.mesh.rotation, 4, {
+    gsap.to(obstacle.mesh.rotation, 4, {
         x: Math.PI * 3,
         z: Math.PI * 3,
         y: Math.PI * 6,
@@ -273,7 +305,7 @@ function getMalus() {
     });
     //
     state.monsterPosTarget -= 0.04;
-    TweenMax.from(this, 0.5, {
+    gsap.from(this, 0.5, {
         malusClearAlpha: 0.5,
         onUpdate: function () {
             renderer.setClearColor(malusClearColor, malusClearAlpha);
@@ -296,6 +328,7 @@ function resetGameDefault() {
     hero.nod();
 
     audio.play();
+    clock.start();
     updateLevel();
     levelInterval = setInterval(updateLevel, levelUpdateFreq);
 }
@@ -353,40 +386,23 @@ function replay() {
     });
 }
 
-// TREE
+function gameOver() {
+    fieldGameOver.className = 'show';
+    fieldGameOver.querySelector('#banner').innerHTML = 'Game Over';
 
-const firs = new THREE.Group();
+    state.gameStatus = 'gameOver';
+    state.floorRotation = 0; // TODO: check if this is working?
+    updateHighScore(Number(fieldDistance.innerHTML));
 
-function createFirs() {
-    const nTrees = 100;
-    for (let i = 0; i < nTrees; i++) {
-        const phi = (i * (Math.PI * 2)) / nTrees;
-        let theta = Math.PI / 2;
-        //theta += .25 + Math.random()*.3;
-        theta +=
-            Math.random() > 0.05
-                ? 0.25 + Math.random() * 0.3
-                : -0.35 - Math.random() * 0.1;
-
-        const fir = new Tree();
-        fir.mesh.position.x = Math.sin(theta) * Math.cos(phi) * floorRadius;
-        fir.mesh.position.y =
-            Math.sin(theta) * Math.sin(phi) * (floorRadius - 10);
-        fir.mesh.position.z = Math.cos(theta) * floorRadius;
-
-        const vec = fir.mesh.position.clone();
-        const axis = new THREE.Vector3(0, 1, 0);
-        fir.mesh.quaternion.setFromUnitVectors(axis, vec.clone().normalize());
-        floor.add(fir.mesh);
-    }
-}
-
-class Tree {
-    constructor() {
-        this.mesh = new THREE.Object3D();
-        this.trunc = new Trunc();
-        this.mesh.add(this.trunc.mesh);
-    }
+    scene.fog.near = outFogNear;
+    monster.sit();
+    hero.hang();
+    monster.heroHolder.add(hero.mesh);
+    gsap.to(this, 1, { speed: 0 });
+    gsap.to(camera.position, 3, { z: cameraPosGameOver, y: 60, x: -30 });
+    vaccine.mesh.visible = false;
+    obstacle.mesh.visible = false;
+    clearInterval(levelInterval);
 }
 
 // main function
@@ -399,7 +415,7 @@ function init() {
     createHero();
     createBonusParticles();
     createVaccine();
-    createFirs();
+    createBuilding();
     createObstacle();
     if (state.gameStatus != 'beginning') {
         resetGameDefault();
@@ -419,20 +435,20 @@ init();
 function initUI() {
     fieldDistance = document.getElementById('distValue');
     fieldGameOver = document.getElementById('gameoverInst');
-
-    // set highscore
-    if (!window.localStorage.getItem(STORAGE_HS)) {
-        window.localStorage.setItem(STORAGE_HS, JSON.stringify([]));
-    }
-
     initHSTable();
 }
 
 function initListeners() {
     window.addEventListener('resize', handleWindowResize);
     audio.addEventListener('ended', () => {
-        this.play();
+        console.log('Music just ended. Replaying...');
+        audio.play();
     }); // replay on audio end.
+    // handle on lose / gain focus
+    document.addEventListener(
+        getVisibilityEvent(getBrowserPrefix()),
+        handleVisibilityChange,
+    );
     document.addEventListener('mousedown', handleMouseDown);
     document.addEventListener('touchend', handleMouseDown);
     document.addEventListener('keydown', function (event) {
@@ -467,7 +483,6 @@ function initListeners() {
             closeModal(modal);
             clearInterval(levelInterval);
             resetGameDefault();
-            clock.start();
             loop();
         });
     });
@@ -478,7 +493,6 @@ function initListeners() {
             closeModal(modal);
             clearInterval(levelInterval);
             resetGameDefault();
-            clock.start();
             loop();
             homePage();
         });
@@ -504,11 +518,13 @@ function handleEscape() {
             closeModal(modal);
         });
         state.gameStatus = 'play';
-        clock.start();
+        audio.play();
+        clock.start(); // stop clock to reset delta
         loop();
     } else if (state.gameStatus == 'play') {
         const modal = document.querySelector('#modal');
         state.gameStatus = 'paused';
+        audio.pause();
         openModal(modal);
     }
 }
@@ -544,6 +560,10 @@ function homePage() {
 
 // HIGH SCORE UTILS
 function initHSTable() {
+    if (!window.localStorage.getItem(STORAGE_HS)) {
+        window.localStorage.setItem(STORAGE_HS, JSON.stringify([]));
+    }
+
     const highscores = JSON.parse(window.localStorage.getItem(STORAGE_HS));
     const table = fieldGameOver.querySelector('#highscore');
     table.innerHTML = `
@@ -551,7 +571,7 @@ function initHSTable() {
             <th style="width: 200px;">Date, Time</th>
             <th style="width: 100px;">Score</th>
         </thead>
-    `;
+    `; // yeah it's a hardcode here and there :p
     highscores.forEach(({ score, date }) => {
         let tr = document.createElement('tr');
         tr.innerHTML = `<td>${new Date(
@@ -573,21 +593,40 @@ function updateHighScore(score) {
     initHSTable();
 }
 
-function gameOver() {
-    fieldGameOver.className = 'show';
-    fieldGameOver.querySelector('#banner').innerHTML = 'Game Over';
+/**
+ * Handle on focus out
+ */
 
-    state.gameStatus = 'gameOver';
-    state._floorRotation = 0; // TODO: check if this is working?
-    updateHighScore(Number(fieldDistance.innerHTML));
+// get the correct attribute name
+function getHiddenPropertyName(prefix) {
+    return prefix ? prefix + 'Hidden' : 'hidden';
+}
 
-    scene.fog.near = outFogNear;
-    monster.sit();
-    hero.hang();
-    monster.heroHolder.add(hero.mesh);
-    gsap.to(this, 1, { speed: 0 });
-    gsap.to(camera.position, 3, { z: cameraPosGameOver, y: 60, x: -30 });
-    vaccine.mesh.visible = false;
-    obstacle.mesh.visible = false;
-    clearInterval(levelInterval);
+// get the correct event name
+function getVisibilityEvent(prefix) {
+    return (prefix ? prefix : '') + 'visibilitychange';
+}
+
+// get current browser vendor prefix
+function getBrowserPrefix() {
+    for (let i = 0; i < browserPrefixes.length; i++) {
+        if (getHiddenPropertyName(browserPrefixes[i]) in document) {
+            // return vendor prefix
+            return browserPrefixes[i];
+        }
+    }
+
+    // no vendor prefix needed
+    return null;
+}
+
+function handleVisibilityChange() {
+    if (document[getHiddenPropertyName(getBrowserPrefix())]) {
+        // the page is hidden
+        if (state.gameStatus === 'play') {
+            handleEscape();
+        }
+    } else {
+        // the page is visible
+    }
 }

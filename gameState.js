@@ -89,14 +89,7 @@ class GameState {
     }
 
     reset() {
-        this._delta = 0;
-        this._level = 1;
-        this._distance = 0;
-        this._speed = 5;
-        this._gameStatus = 'play';
-        this._floorRotation = 0;
-        this._monsterPos = 0.65;
-        this._monsterPosTarget = 0.65;
+        constructor();
     }
 }
 
