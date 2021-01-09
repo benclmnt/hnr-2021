@@ -22,6 +22,8 @@ const audio = new Audio(
 let monsterAcceleration = 0.004;
 var malusClearColor = 0x8b0000;
 let malusClearAlpha = 0;
+var malusBackground;
+var normalBackground;
 
 // scene vars
 let sceneBackgroundColor = 0xf54040;
@@ -55,6 +57,8 @@ function initScreenAnd3D() {
     scene = new THREE.Scene();
     scene.background = new THREE.Color(sceneBackgroundColor);
     scene.fog = new THREE.Fog(0xaaaaaa, initFogNear, 350);
+    malusBackground = new THREE.Color(malusClearColor);
+    normalBackground = new THREE.Color(sceneBackgroundColor);
 
     // set global camera
     camera = new THREE.PerspectiveCamera(
@@ -308,12 +312,13 @@ function getMalus() {
     });
     //
     state.monsterPosTarget -= 0.04;
-    gsap.from(this, 0.5, {
-        malusClearAlpha: 0.5,
-        onUpdate: function () {
-            renderer.setClearColor(malusClearColor, malusClearAlpha);
-        },
-    });
+    // gsap.from(this, 0.5, {
+    //     malusClearAlpha: 0.5,
+    //     onUpdate: function () {
+    //         renderer.setClearColor(malusClearColor, malusClearAlpha);
+    //     },
+    // });
+    gsap.fromTo(scene, {background: malusBackground},{background: normalBackground, duration: 0.1})
 }
 
 function resetGameDefault() {
