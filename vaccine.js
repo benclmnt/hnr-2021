@@ -8,10 +8,10 @@ export default class Vaccine {
         this.mesh = new THREE.Group();
 
         const bodyGeom = new THREE.CylinderGeometry(2, 2, 8, 9, 1);
-        this.body = new THREE.Mesh(bodyGeom, Material.PhongWhite);
+        this.body = new THREE.Mesh(bodyGeom, Material.PhongBlue);
 
         const sharpGeom = new THREE.CylinderGeometry(2, 0.2, 3, 9, 1);
-        this.sharp = new THREE.Mesh(sharpGeom, Material.PhongWhite);
+        this.sharp = new THREE.Mesh(sharpGeom, Material.PhongBlue);
         sharpGeom.applyMatrix4(new THREE.Matrix4().makeTranslation(0, -5, 0));
 
         const coverGeom = new THREE.CylinderGeometry(2, 2, 0.5, 9, 1);

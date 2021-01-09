@@ -6,13 +6,18 @@ import Hero from './hero.js';
 import Vaccine from './vaccine.js';
 import Monster from './monster.js';
 import Virus from './virus.js';
-import Trunc from './trunc.js';
+import Tower from './tower.js';
 import state from './gameState.js';
+
+const STORAGE_HS = 'hs';
+const browserPrefixes = ['moz', 'ms', 'o', 'webkit'];
+const gameOverMsg = 'Game Over';
+const homepageMsg = 'Welcome back, Roco!';
 
 let scene, camera, clock, renderer;
 
 const audio = new Audio(
-    'https://drive.google.com/file/d/13dP8QP50JFN1L9WLDgODzmvjMf9er933/view?usp=sharing',
+    'https://raw.githubusercontent.com/kevnw/coro-jump/master/escape.mp3',
 );
 let monsterAcceleration = 0.004;
 var malusClearColor = 0x8b0000;
@@ -34,7 +39,7 @@ const cameraPosGameOver = 260;
 // characters
 let hero, monster, vaccine, obstacle, bonusParticles;
 
-let fieldGameOver, fieldHomePage, fieldDistance;
+let fieldGameOver, fieldDistance;
 
 // game status
 let levelInterval; // increase level interval
@@ -61,13 +66,11 @@ function initScreenAnd3D() {
     camera.position.set(0, 30, cameraPosGame);
     camera.lookAt(new THREE.Vector3(0, 30, 0));
 
-    const canvas = document.getElementById('world');
-
     // set global renderer
     renderer = new THREE.WebGLRenderer({
         alpha: true,
         antialias: true,
-        canvas,
+        canvas: document.getElementById('world'),
     });
     renderer.setPixelRatio(window.devicePixelRatio);
     renderer.setClearColor(malusClearColor, malusClearAlpha);
@@ -112,6 +115,42 @@ function createMonster() {
     updateMonsterPosition();
 }
 
+function createBuilding() {
+    const nBuildings = 100;
+    for (let i = 0; i < nBuildings; i++) {
+        const phi = (i * (Math.PI * 2)) / nBuildings;
+        let theta = Math.PI / 2;
+        //theta += .25 + Math.random()*.3;
+        theta +=
+            Math.random() > 0.05
+                ? 0.25 + Math.random() * 0.3
+                : -0.35 - Math.random() * 0.1;
+
+        const building = new Building();
+        building.mesh.position.x =
+            Math.sin(theta) * Math.cos(phi) * floorRadius;
+        building.mesh.position.y =
+            Math.sin(theta) * Math.sin(phi) * (floorRadius - 10);
+        building.mesh.position.z = Math.cos(theta) * floorRadius;
+
+        const vec = building.mesh.position.clone();
+        const axis = new THREE.Vector3(0, 1, 0);
+        building.mesh.quaternion.setFromUnitVectors(
+            axis,
+            vec.clone().normalize(),
+        );
+        floor.add(building.mesh);
+    }
+}
+
+class Building {
+    constructor() {
+        this.mesh = new THREE.Object3D();
+        this.tower = new Tower();
+        this.mesh.add(this.tower.mesh);
+    }
+}
+
 function createBonusParticles() {
     bonusParticles = new BonusParticles();
     bonusParticles.mesh.visible = false;
@@ -128,8 +167,8 @@ function createObstacle() {
 }
 
 function loop() {
-    console.log (state.gameStatus);
     state.delta = clock.getDelta();
+    console.log('state', state.gameStatus);
     updateFloorRotation();
 
     if (state.gameStatus == 'play') {
@@ -201,8 +240,6 @@ function updateMonsterPosition() {
     monster.mesh.rotation.z = -Math.PI / 2 + angle;
 }
 
-// OBSTACLE RELATED
-
 function updateObstaclePosition() {
     if (obstacle.status == 'flying') return;
 
@@ -222,14 +259,14 @@ function updateObstaclePosition() {
 }
 
 function checkCollision() {
-    var db = hero.mesh.position.clone().sub(vaccine.mesh.position.clone());
-    var dm = hero.mesh.position.clone().sub(obstacle.mesh.position.clone());
+    const db = hero.mesh.position.clone().sub(vaccine.mesh.position.clone());
+    const dm = hero.mesh.position.clone().sub(obstacle.mesh.position.clone());
 
     if (db.length() < state.collisionBonus) {
         getBonus();
     }
 
-    if (dm.length() < state.collisionObstacle && obstacle.status != "flying") {
+    if (dm.length() < state.collisionObstacle && obstacle.status != 'flying') {
         getMalus();
     }
 }
@@ -240,39 +277,48 @@ function getBonus() {
     bonusParticles.explode();
     vaccine.angle += Math.PI / 2;
     //speed*=.95;
-    state.monsterPosTarget += .025;
+    state.monsterPosTarget += 0.025;
 }
 
 function getMalus() {
-    obstacle.status = "flying";
-    var tx = (Math.random() > .5) ? -20 - Math.random() * 10 : 20 + Math.random() * 5;
-    TweenMax.to(obstacle.mesh.position, 4, { x: tx, y: Math.random() * 50, z: 350, ease: Power4.easeOut });
-    TweenMax.to(obstacle.mesh.rotation, 4, {
-        x: Math.PI * 3, z: Math.PI * 3, y: Math.PI * 6, ease: Power4.easeOut, onComplete: function () {
-            obstacle.status = "ready";
+    obstacle.status = 'flying';
+    const tx =
+        Math.random() > 0.5 ? -20 - Math.random() * 10 : 20 + Math.random() * 5;
+    gsap.to(obstacle.mesh.position, 4, {
+        x: tx,
+        y: Math.random() * 50,
+        z: 350,
+        ease: Power4.easeOut,
+    });
+    gsap.to(obstacle.mesh.rotation, 4, {
+        x: Math.PI * 3,
+        z: Math.PI * 3,
+        y: Math.PI * 6,
+        ease: Power4.easeOut,
+        onComplete: function () {
+            obstacle.status = 'ready';
             obstacle.body.rotation.y = Math.random() * Math.PI * 2;
-            obstacle.angle = -state.floorRotation - Math.random() * .4;
+            obstacle.angle = -state.floorRotation - Math.random() * 0.4;
 
             obstacle.angle = obstacle.angle % (Math.PI * 2);
             obstacle.mesh.rotation.x = 0;
             obstacle.mesh.rotation.y = 0;
             obstacle.mesh.rotation.z = 0;
             obstacle.mesh.position.z = 0;
-
-        }
+        },
     });
     //
-    console.log(window)
-    state.monsterPosTarget -= .04;
-    // renderer.setClearColor(malusClearColor, malusClearAlpha);
-    gsap.from(window, .5, {
-        malusClearAlpha: .5, onUpdate: function () {
+    state.monsterPosTarget -= 0.04;
+    gsap.from(this, 0.5, {
+        malusClearAlpha: 0.5,
+        onUpdate: function () {
             renderer.setClearColor(malusClearColor, malusClearAlpha);
-        }
-    })
+        },
+    });
 }
 
 function resetGameDefault() {
+    console.log('Reset game default called with state', state.gameStatus);
     if (!hero) {
         throw Error('Hero not found!!');
     }
@@ -281,12 +327,14 @@ function resetGameDefault() {
     hero.mesh.position.set(0, 0, 0);
     hero.mesh.rotation.y = Math.PI / 2;
 
+    console.log('state before reset', { ...state });
     state.reset();
-    state.gameStatus = 'play';
+    console.log('state after reset', { ...state });
     hero.status = 'running';
     hero.nod();
 
-    // audio.play();
+    audio.play();
+    clock.start();
     updateLevel();
     levelInterval = setInterval(updateLevel, levelUpdateFreq);
 }
@@ -296,8 +344,7 @@ function replay() {
     scene.fog.near = initFogNear;
 
     fieldGameOver.className = '';
-    fieldHomePage.className = "";
-    
+
     gsap.killTweensOf(monster.pawFL.position);
     gsap.killTweensOf(monster.pawFR.position);
     gsap.killTweensOf(monster.pawBL.position);
@@ -345,40 +392,23 @@ function replay() {
     });
 }
 
-// TREE
+function gameOver() {
+    fieldGameOver.className = 'show';
+    fieldGameOver.querySelector('#banner').innerHTML = gameOverMsg;
 
-const firs = new THREE.Group();
+    state.gameStatus = 'gameOver';
+    state.floorRotation = 0; // TODO: check if this is working?
+    updateHighScore(Number(fieldDistance.innerHTML));
 
-function createFirs() {
-    const nTrees = 100;
-    for (let i = 0; i < nTrees; i++) {
-        const phi = (i * (Math.PI * 2)) / nTrees;
-        let theta = Math.PI / 2;
-        //theta += .25 + Math.random()*.3;
-        theta +=
-            Math.random() > 0.05
-                ? 0.25 + Math.random() * 0.3
-                : -0.35 - Math.random() * 0.1;
-
-        const fir = new Tree();
-        fir.mesh.position.x = Math.sin(theta) * Math.cos(phi) * floorRadius;
-        fir.mesh.position.y =
-            Math.sin(theta) * Math.sin(phi) * (floorRadius - 10);
-        fir.mesh.position.z = Math.cos(theta) * floorRadius;
-
-        const vec = fir.mesh.position.clone();
-        const axis = new THREE.Vector3(0, 1, 0);
-        fir.mesh.quaternion.setFromUnitVectors(axis, vec.clone().normalize());
-        floor.add(fir.mesh);
-    }
-}
-
-class Tree {
-    constructor() {
-        this.mesh = new THREE.Object3D();
-        this.trunc = new Trunc();
-        this.mesh.add(this.trunc.mesh);
-    }
+    scene.fog.near = outFogNear;
+    monster.sit();
+    hero.hang();
+    monster.heroHolder.add(hero.mesh);
+    gsap.to(this, 1, { speed: 0 });
+    gsap.to(camera.position, 3, { z: cameraPosGameOver, y: 60, x: -30 });
+    vaccine.mesh.visible = false;
+    obstacle.mesh.visible = false;
+    clearInterval(levelInterval);
 }
 
 // main function
@@ -391,7 +421,7 @@ function init() {
     createHero();
     createBonusParticles();
     createVaccine();
-    createFirs();
+    createBuilding();
     createObstacle();
     if (state.gameStatus != 'beginning') {
         resetGameDefault();
@@ -401,7 +431,7 @@ function init() {
     loop();
 }
 
-init()
+init();
 
 /**
  * UI Utilities
@@ -410,11 +440,20 @@ init()
 function initUI() {
     fieldDistance = document.getElementById('distValue');
     fieldGameOver = document.getElementById('gameoverInst');
-    fieldHomePage = document.getElementById('homePage');
+    initHSTable();
 }
 
 function initListeners() {
     window.addEventListener('resize', handleWindowResize);
+    audio.addEventListener('ended', () => {
+        console.log('Music just ended. Replaying...');
+        audio.play();
+    }); // replay on audio end.
+    // handle on lose / gain focus
+    document.addEventListener(
+        getVisibilityEvent(getBrowserPrefix()),
+        handleVisibilityChange,
+    );
     document.addEventListener('mousedown', handleMouseDown);
     document.addEventListener('touchend', handleMouseDown);
     document.addEventListener('keydown', function (event) {
@@ -423,7 +462,8 @@ function initListeners() {
             handleEscape();
         }
 
-        if (event.key === ' ') { // spacebar
+        if (event.key === ' ') {
+            // spacebar
             handleMouseDown(event);
         }
     });
@@ -448,7 +488,6 @@ function initListeners() {
             closeModal(modal);
             clearInterval(levelInterval);
             resetGameDefault();
-            clock.start();
             loop();
         });
     });
@@ -458,10 +497,9 @@ function initListeners() {
             const modal = button.closest('.modal');
             closeModal(modal);
             clearInterval(levelInterval);
-            resetGameDefault();
-            clock.start();
+            resetGameDefault(); // game status will set to play here. Not what we want
+            homePage(); // game status will be set to beginning here. No worries :)
             loop();
-            homePage();
         });
     });
 }
@@ -479,17 +517,20 @@ function closeModal(modal) {
 }
 
 function handleEscape() {
+    console.log('handle escape called with state', state.gameStatus);
     if (state.gameStatus == 'paused') {
         const modals = document.querySelectorAll('.modal.active');
         modals.forEach((modal) => {
             closeModal(modal);
         });
         state.gameStatus = 'play';
-        clock.start();
+        audio.play();
+        clock.start(); // stop clock to reset delta
         loop();
     } else if (state.gameStatus == 'play') {
         const modal = document.querySelector('#modal');
         state.gameStatus = 'paused';
+        audio.pause();
         openModal(modal);
     }
 }
@@ -511,22 +552,12 @@ function handleMouseDown(event) {
 }
 
 function homePage() {
-    fieldHomePage.className = 'show';
-    state.gameStatus = 'homePage';
-    monster.sit();
-    hero.hang();
-    monster.heroHolder.add(hero.mesh);
-    gsap.to(window, 1, { speed: 0 });
-    gsap.to(camera.position, 3, { z: cameraPosGameOver, y: 60, x: -30 });
-    vaccine.mesh.visible = true;
-    obstacle.mesh.visible = true;
-    clearInterval(levelInterval);
-}
-
-function gameOver() {
     fieldGameOver.className = 'show';
-    state.gameStatus = 'gameOver';
-    scene.fog.near = outFogNear;
+    fieldDistance.textContent = '000';
+    fieldGameOver.querySelector('#banner').innerHTML = homepageMsg;
+
+    state._gameStatus = 'beginning';
+
     monster.sit();
     hero.hang();
     monster.heroHolder.add(hero.mesh);
@@ -535,4 +566,77 @@ function gameOver() {
     vaccine.mesh.visible = false;
     obstacle.mesh.visible = false;
     clearInterval(levelInterval);
+}
+
+// HIGH SCORE UTILS
+function initHSTable() {
+    if (!window.localStorage.getItem(STORAGE_HS)) {
+        window.localStorage.setItem(STORAGE_HS, JSON.stringify([]));
+    }
+
+    const highscores = JSON.parse(window.localStorage.getItem(STORAGE_HS));
+    const table = fieldGameOver.querySelector('#highscore');
+    table.innerHTML = `
+        <thead>
+            <th style="width: 200px;">Date, Time</th>
+            <th style="width: 100px;">Score</th>
+        </thead>
+    `; // yeah it's a hardcode here and there :p
+    highscores.forEach(({ score, date }) => {
+        let tr = document.createElement('tr');
+        tr.innerHTML = `<td>${new Date(
+            date,
+        ).toLocaleString()}</td><td>${score}</td>`;
+        table.appendChild(tr);
+    });
+}
+
+function updateHighScore(score) {
+    let highscores = JSON.parse(window.localStorage.getItem(STORAGE_HS));
+    const obj = { score, date: new Date() };
+    highscores.push(obj);
+    highscores.sort((a, b) => b.score - a.score); // sort descending
+    if (highscores.length > 5) {
+        highscores = highscores.slice(0, 5); // take top 5
+    }
+    window.localStorage.setItem(STORAGE_HS, JSON.stringify(highscores));
+    initHSTable();
+}
+
+/**
+ * Handle on focus out
+ */
+
+// get the correct attribute name
+function getHiddenPropertyName(prefix) {
+    return prefix ? prefix + 'Hidden' : 'hidden';
+}
+
+// get the correct event name
+function getVisibilityEvent(prefix) {
+    return (prefix ? prefix : '') + 'visibilitychange';
+}
+
+// get current browser vendor prefix
+function getBrowserPrefix() {
+    for (let i = 0; i < browserPrefixes.length; i++) {
+        if (getHiddenPropertyName(browserPrefixes[i]) in document) {
+            // return vendor prefix
+            return browserPrefixes[i];
+        }
+    }
+
+    // no vendor prefix needed
+    return null;
+}
+
+function handleVisibilityChange() {
+    if (document[getHiddenPropertyName(getBrowserPrefix())]) {
+        // the page is hidden
+        if (state.gameStatus === 'play') {
+            handleEscape();
+        }
+    } else {
+        // the page is visible
+    }
 }

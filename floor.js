@@ -7,7 +7,7 @@ function createFloor() {
     const floorShadow = new THREE.Mesh(
         new THREE.SphereGeometry(floorRadius, 50, 50),
         new THREE.MeshPhongMaterial({
-            color: Colors.green,
+            color: Colors.ground,
             specular: 0x000000,
             shininess: 1,
             transparent: true,
@@ -20,7 +20,7 @@ function createFloor() {
     // floorGrass is a copy of floorShadow without opacity and transparency
     const floorGrass = new THREE.Mesh(
         new THREE.SphereGeometry(floorRadius - 0.5, 50, 50),
-        new THREE.MeshBasicMaterial({ color: Colors.green }),
+        new THREE.MeshBasicMaterial({ color: Colors.ground }),
     );
 
     floorGrass.receiveShadow = false;
