@@ -11,6 +11,8 @@ import state from './gameState.js';
 
 const STORAGE_HS = 'hs';
 const browserPrefixes = ['moz', 'ms', 'o', 'webkit'];
+const gameOverMsg = 'Game Over';
+const homepageMsg = 'Welcome back, Roco!';
 
 let scene, camera, clock, renderer;
 
@@ -64,13 +66,11 @@ function initScreenAnd3D() {
     camera.position.set(0, 30, cameraPosGame);
     camera.lookAt(new THREE.Vector3(0, 30, 0));
 
-    const canvas = document.getElementById('world');
-
     // set global renderer
     renderer = new THREE.WebGLRenderer({
         alpha: true,
         antialias: true,
-        canvas,
+        canvas: document.getElementById('world'),
     });
     renderer.setPixelRatio(window.devicePixelRatio);
     renderer.setClearColor(malusClearColor, malusClearAlpha);
@@ -126,16 +126,20 @@ function createBuilding() {
                 ? 0.25 + Math.random() * 0.3
                 : -0.35 - Math.random() * 0.1;
 
-        const fir = new Building();
-        fir.mesh.position.x = Math.sin(theta) * Math.cos(phi) * floorRadius;
-        fir.mesh.position.y =
+        const building = new Building();
+        building.mesh.position.x =
+            Math.sin(theta) * Math.cos(phi) * floorRadius;
+        building.mesh.position.y =
             Math.sin(theta) * Math.sin(phi) * (floorRadius - 10);
-        fir.mesh.position.z = Math.cos(theta) * floorRadius;
+        building.mesh.position.z = Math.cos(theta) * floorRadius;
 
-        const vec = fir.mesh.position.clone();
+        const vec = building.mesh.position.clone();
         const axis = new THREE.Vector3(0, 1, 0);
-        fir.mesh.quaternion.setFromUnitVectors(axis, vec.clone().normalize());
-        floor.add(fir.mesh);
+        building.mesh.quaternion.setFromUnitVectors(
+            axis,
+            vec.clone().normalize(),
+        );
+        floor.add(building.mesh);
     }
 }
 
@@ -314,6 +318,7 @@ function getMalus() {
 }
 
 function resetGameDefault() {
+    console.log('Reset game default called with state', state.gameStatus);
     if (!hero) {
         throw Error('Hero not found!!');
     }
@@ -322,8 +327,9 @@ function resetGameDefault() {
     hero.mesh.position.set(0, 0, 0);
     hero.mesh.rotation.y = Math.PI / 2;
 
+    console.log('state before reset', { ...state });
     state.reset();
-    state.gameStatus = 'play';
+    console.log('state after reset', { ...state });
     hero.status = 'running';
     hero.nod();
 
@@ -388,7 +394,7 @@ function replay() {
 
 function gameOver() {
     fieldGameOver.className = 'show';
-    fieldGameOver.querySelector('#banner').innerHTML = 'Game Over';
+    fieldGameOver.querySelector('#banner').innerHTML = gameOverMsg;
 
     state.gameStatus = 'gameOver';
     state.floorRotation = 0; // TODO: check if this is working?
@@ -420,7 +426,6 @@ function init() {
     if (state.gameStatus != 'beginning') {
         resetGameDefault();
     } else {
-        state.gameStatus = 'play';
         homePage();
     }
     loop();
@@ -492,9 +497,9 @@ function initListeners() {
             const modal = button.closest('.modal');
             closeModal(modal);
             clearInterval(levelInterval);
-            resetGameDefault();
+            resetGameDefault(); // game status will set to play here. Not what we want
+            homePage(); // game status will be set to beginning here. No worries :)
             loop();
-            homePage();
         });
     });
 }
@@ -512,6 +517,7 @@ function closeModal(modal) {
 }
 
 function handleEscape() {
+    console.log('handle escape called with state', state.gameStatus);
     if (state.gameStatus == 'paused') {
         const modals = document.querySelectorAll('.modal.active');
         modals.forEach((modal) => {
@@ -547,14 +553,18 @@ function handleMouseDown(event) {
 
 function homePage() {
     fieldGameOver.className = 'show';
-    state.gameStatus = 'play';
+    fieldDistance.textContent = '000';
+    fieldGameOver.querySelector('#banner').innerHTML = homepageMsg;
+
+    state._gameStatus = 'beginning';
+
     monster.sit();
     hero.hang();
     monster.heroHolder.add(hero.mesh);
     gsap.to(this, 1, { speed: 0 });
     gsap.to(camera.position, 3, { z: cameraPosGameOver, y: 60, x: -30 });
-    vaccine.mesh.visible = true;
-    obstacle.mesh.visible = true;
+    vaccine.mesh.visible = false;
+    obstacle.mesh.visible = false;
     clearInterval(levelInterval);
 }
 
