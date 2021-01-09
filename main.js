@@ -22,6 +22,8 @@ const audio = new Audio(
 let monsterAcceleration = 0.004;
 var malusClearColor = 0x8b0000;
 let malusClearAlpha = 0;
+var malusBackground;
+var normalBackground;
 
 // scene vars
 let sceneBackgroundColor = [0xf54040, 0x0057d9, 0x997950, 0x0b6623];
@@ -57,6 +59,8 @@ function initScreenAnd3D() {
         sceneBackgroundColor[Math.random() * sceneBackgroundColor.length],
     );
     scene.fog = new THREE.Fog(0xaaaaaa, initFogNear, 350);
+    malusBackground = new THREE.Color(malusClearColor);
+    normalBackground = new THREE.Color(sceneBackgroundColor);
 
     // set global camera
     camera = new THREE.PerspectiveCamera(
@@ -312,14 +316,9 @@ function getMalus() {
             obstacle.mesh.position.z = 0;
         },
     });
-    //
+    
     state.monsterPosTarget -= 0.04;
-    gsap.from(this, 0.5, {
-        malusClearAlpha: 0.5,
-        onUpdate: function () {
-            renderer.setClearColor(malusClearColor, malusClearAlpha);
-        },
-    });
+    gsap.fromTo(scene, {background: malusBackground},{background: normalBackground, duration: 0.1})
 }
 
 function resetGameDefault() {
@@ -545,6 +544,19 @@ function handleWindowResize() {
     renderer.setSize(WIDTH, HEIGHT);
     camera.aspect = WIDTH / HEIGHT;
     camera.updateProjectionMatrix();
+}
+
+function preventZoom(e) {
+  var t2 = e.timeStamp;
+  var t1 = e.currentTarget.dataset.lastTouch || t2;
+  var dt = t2 - t1;
+  var fingers = e.touches.length;
+  e.currentTarget.dataset.lastTouch = t2;
+
+  if (!dt || dt > 500 || fingers > 1) return; // not double-tap
+
+  e.preventDefault();
+  e.target.click();
 }
 
 function handleMouseDown(event) {
