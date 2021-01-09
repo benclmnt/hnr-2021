@@ -451,8 +451,8 @@ function initListeners() {
         getVisibilityEvent(getBrowserPrefix()),
         handleVisibilityChange,
     );
-    // document.addEventListener('mousedown', handleMouseDown);
-    // document.addEventListener('touchend', handleMouseDown);
+    // document.addEventListener('click', handleMouseDown);
+    document.addEventListener('touchend', handleMouseDown);
     document.addEventListener('keydown', function (event) {
         if (event.key === 'Escape') {
             // Esc key was pressed
