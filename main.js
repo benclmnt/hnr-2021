@@ -130,7 +130,6 @@ function createObstacle() {
 }
 
 function loop() {
-    console.log(state.gameStatus);
     state.delta = clock.getDelta();
     updateFloorRotation();
 
@@ -296,7 +295,7 @@ function resetGameDefault() {
     hero.status = 'running';
     hero.nod();
 
-    // audio.play();
+    audio.play();
     updateLevel();
     levelInterval = setInterval(updateLevel, levelUpdateFreq);
 }
@@ -405,10 +404,8 @@ function init() {
     if (state.gameStatus != 'beginning') {
         resetGameDefault();
     } else {
-        console.log('masuk sini');
         state.gameStatus = 'play';
         homePage();
-        console.log('STATE = ', state.gameStatus);
     }
     loop();
 }

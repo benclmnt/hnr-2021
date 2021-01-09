@@ -11,10 +11,10 @@ export default class Virus {
         this.body = new THREE.Mesh(bodyGeom, Material.PhongDarkGreen);
 
         var spikeGeom = new THREE.CylinderGeometry(0.5, 0.2, 3, 20);
-        spikeGeom.applyMatrix(new THREE.Matrix4().makeTranslation(0, 1, 0));
+        spikeGeom.applyMatrix4(new THREE.Matrix4().makeTranslation(0, 1, 0));
 
         var ballGeom = new THREE.SphereGeometry(0.7, 20, 20);
-        ballGeom.applyMatrix(new THREE.Matrix4().makeTranslation(0, 3, 0));
+        ballGeom.applyMatrix4(new THREE.Matrix4().makeTranslation(0, 3, 0));
 
         for (var i = 0; i < 9; i += 2) {
             var row = i % 3;

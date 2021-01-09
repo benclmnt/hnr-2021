@@ -53,7 +53,7 @@ export let PhongRed = new THREE.MeshPhongMaterial({
 export let PhongBlue = new THREE.MeshPhongMaterial({
     color: 0x25adcc,
     flatShading: true,
-    emmisive : 0xffffff,
+    emissive: 0x25adcc,
     shininess: 100,
 });
 

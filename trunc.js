@@ -23,7 +23,7 @@ export default class Trunc {
             PhongSkin,
         ];
         const matTrunc = PhongBlack; //mats[Math.floor(Math.random()*mats.length)];
-    
+
         const geom = new THREE.CubeGeometry(
             bottomRadius,
             truncHeight,
@@ -36,7 +36,7 @@ export default class Trunc {
         this.mesh = new THREE.Mesh(geom, matTrunc);
 
         for (let i = 0; i < 8; i++) {
-            if(i!=0 && i!=5) continue;
+            if (i != 0 && i != 5) continue;
             const v = geom.vertices[i];
 
             geom.computeVertexNormals();
@@ -51,18 +51,22 @@ export default class Trunc {
                     size,
                     1,
                 );
-                for(let j=0;j<3;j++) {
-                    if(Math.random() > 0.5) {
-                        const matWindow = mats[Math.floor(Math.random() * mats.length)];
-                        const window = new THREE.Mesh(windowGeometry, matWindow);
-                        if(i===0) {
+                for (let j = 0; j < 3; j++) {
+                    if (Math.random() > 0.5) {
+                        const matWindow =
+                            mats[Math.floor(Math.random() * mats.length)];
+                        const window = new THREE.Mesh(
+                            windowGeometry,
+                            matWindow,
+                        );
+                        if (i === 0) {
                             window.position.x = v.x - 7;
                         } else {
                             window.position.x = v.x + 7;
                         }
                         window.position.y = v.y - 7;
-                        window.position.z = v.z - 2 ;
-                        window.position.y -= j*(size + 2);
+                        window.position.z = v.z - 2;
+                        window.position.y -= j * (size + 2);
                         this.mesh.add(window);
                     }
                 }
