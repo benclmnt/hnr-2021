@@ -405,10 +405,10 @@ function gameOver() {
     monster.sit();
     hero.hang();
     monster.heroHolder.add(hero.mesh);
-    gsap.to(this, 1, { speed: 0 });
+    gsap.to(this, 1, {});
     gsap.to(camera.position, 3, { z: cameraPosGameOver, y: 60, x: -30 });
-    vaccine.mesh.visible = false;
-    obstacle.mesh.visible = false;
+    vaccine.mesh.visible = true;
+    obstacle.mesh.visible = true;
     clearInterval(levelInterval);
 }
 
@@ -442,7 +442,7 @@ function initUI() {
     fieldDistance = document.getElementById('distValue');
     fieldGameOver = document.getElementById('gameoverInst');
     initHSTable();
-    console.log("Welcome to CORO JUMP! Nice to meet you here :)")
+    console.log('Welcome to CORO JUMP! Nice to meet you here :)');
 }
 
 function initListeners() {
@@ -456,17 +456,19 @@ function initListeners() {
         getVisibilityEvent(getBrowserPrefix()),
         handleVisibilityChange,
     );
-    // document.addEventListener('click', handleMouseDown);
+    document.querySelector('canvas').addEventListener('click', handleMouseDown);
     document.addEventListener('touchend', handleMouseDown);
     document.addEventListener('keydown', function (event) {
         if (event.key === 'Escape') {
-            // Esc key was pressed
             handleEscape();
         }
 
-        if (event.key === ' ') {
-            // spacebar
+        if ([' ', 'Enter', 'ArrowUp', 'w'].includes(event.key)) {
             handleMouseDown(event);
+        }
+
+        if (event.key === 'm') {
+            handleMuteSound(event);
         }
     });
     const closeModalButtons = document.querySelectorAll('[data-close-button]');
@@ -505,15 +507,9 @@ function initListeners() {
         });
     });
 
-    document.querySelector('.speaker').addEventListener('click', function (e) {
-        if (this.classList.contains('mute')) {
-            audio.muted = false;
-            this.classList.remove('mute');
-        } else {
-            audio.muted = true;
-            this.classList.add('mute');
-        }
-    });
+    document
+        .querySelector('.speaker')
+        .addEventListener('click', handleMuteSound);
 }
 
 function openModal(modal) {
@@ -554,11 +550,35 @@ function handleWindowResize() {
     camera.updateProjectionMatrix();
 }
 
+function preventZoom(e) {
+  var t2 = e.timeStamp;
+  var t1 = e.currentTarget.dataset.lastTouch || t2;
+  var dt = t2 - t1;
+  var fingers = e.touches.length;
+  e.currentTarget.dataset.lastTouch = t2;
+
+  if (!dt || dt > 500 || fingers > 1) return; // not double-tap
+
+  e.preventDefault();
+  e.target.click();
+}
+
 function handleMouseDown(event) {
     if (state.gameStatus == 'play') {
         hero.jump();
     } else if (state.gameStatus == 'readyToReplay') {
         replay();
+    }
+}
+
+function handleMuteSound(event) {
+    const button = document.querySelector('.speaker');
+    if (button.classList.contains('mute')) {
+        audio.muted = false;
+        button.classList.remove('mute');
+    } else {
+        audio.muted = true;
+        button.classList.add('mute');
     }
 }
 
@@ -572,7 +592,7 @@ function homePage() {
     monster.sit();
     hero.hang();
     monster.heroHolder.add(hero.mesh);
-    gsap.to(window, 1, { speed: 0 });
+    gsap.to(window, 1, {});
     gsap.to(camera.position, 3, { z: cameraPosGameOver, y: 60, x: -30 });
     vaccine.mesh.visible = true;
     obstacle.mesh.visible = true;

@@ -11,6 +11,7 @@ body {
 *:after {
     box-sizing: border-box;
     -webkit-tap-highlight-color: transparent;
+    touch-action: manipulation;
 }
 
 blockquote,
