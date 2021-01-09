@@ -168,7 +168,6 @@ function createObstacle() {
 
 function loop() {
     state.delta = clock.getDelta();
-    console.log('state', state.gameStatus);
     updateFloorRotation();
 
     if (state.gameStatus == 'play') {
@@ -318,7 +317,6 @@ function getMalus() {
 }
 
 function resetGameDefault() {
-    console.log('Reset game default called with state', state.gameStatus);
     if (!hero) {
         throw Error('Hero not found!!');
     }
@@ -327,9 +325,7 @@ function resetGameDefault() {
     hero.mesh.position.set(0, 0, 0);
     hero.mesh.rotation.y = Math.PI / 2;
 
-    console.log('state before reset', { ...state });
     state.reset();
-    console.log('state after reset', { ...state });
     hero.status = 'running';
     hero.nod();
 
@@ -441,6 +437,7 @@ function initUI() {
     fieldDistance = document.getElementById('distValue');
     fieldGameOver = document.getElementById('gameoverInst');
     initHSTable();
+    console.log("Welcome to CORO JUMP! Nice to meet you here :)")
 }
 
 function initListeners() {
@@ -517,7 +514,6 @@ function closeModal(modal) {
 }
 
 function handleEscape() {
-    console.log('handle escape called with state', state.gameStatus);
     if (state.gameStatus == 'paused') {
         const modals = document.querySelectorAll('.modal.active');
         modals.forEach((modal) => {
@@ -563,8 +559,8 @@ function homePage() {
     monster.heroHolder.add(hero.mesh);
     gsap.to(this, 1, { speed: 0 });
     gsap.to(camera.position, 3, { z: cameraPosGameOver, y: 60, x: -30 });
-    vaccine.mesh.visible = false;
-    obstacle.mesh.visible = false;
+    vaccine.mesh.visible = true;
+    obstacle.mesh.visible = true;
     clearInterval(levelInterval);
 }
 
