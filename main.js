@@ -452,7 +452,7 @@ function initListeners() {
         handleVisibilityChange,
     );
     document.querySelector('canvas').addEventListener('click', handleMouseDown);
-    document.addEventListener('touchend', preventZoom);
+    document.addEventListener('touchend', handleMouseDown);
     document.addEventListener('keydown', function (event) {
         if (event.key === 'Escape') {
             handleEscape();
