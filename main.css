@@ -11,6 +11,7 @@ body {
 *:after {
     box-sizing: border-box;
     -webkit-tap-highlight-color: transparent;
+    touch-action: manipulation;
 }
 
 blockquote,
@@ -227,11 +228,11 @@ ul {
 }
 
 .speaker {
-	height: 30px;
-	width: 30px;
-	position: relative;
-	overflow: hidden;
-	display: inline-block;
+    height: 30px;
+    width: 30px;
+    position: relative;
+    overflow: hidden;
+    display: inline-block;
 }
 
 .speaker span {
@@ -274,6 +275,6 @@ ul {
 }
 
 .speaker.mute span:before {
-    transform: scale(.5) translate(-15px, 0) rotate(36deg);
+    transform: scale(0.5) translate(-15px, 0) rotate(36deg);
     opacity: 0;
 }
