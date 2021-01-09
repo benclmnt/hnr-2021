@@ -310,14 +310,8 @@ function getMalus() {
             obstacle.mesh.position.z = 0;
         },
     });
-    //
+    
     state.monsterPosTarget -= 0.04;
-    // gsap.from(this, 0.5, {
-    //     malusClearAlpha: 0.5,
-    //     onUpdate: function () {
-    //         renderer.setClearColor(malusClearColor, malusClearAlpha);
-    //     },
-    // });
     gsap.fromTo(scene, {background: malusBackground},{background: normalBackground, duration: 0.1})
 }
 
