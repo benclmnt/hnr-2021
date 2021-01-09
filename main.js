@@ -451,8 +451,8 @@ function initListeners() {
         getVisibilityEvent(getBrowserPrefix()),
         handleVisibilityChange,
     );
-    document.addEventListener('mousedown', handleMouseDown);
-    document.addEventListener('touchend', handleMouseDown);
+    // document.addEventListener('mousedown', handleMouseDown);
+    // document.addEventListener('touchend', handleMouseDown);
     document.addEventListener('keydown', function (event) {
         if (event.key === 'Escape') {
             // Esc key was pressed
@@ -498,6 +498,16 @@ function initListeners() {
             homePage(); // game status will be set to beginning here. No worries :)
             loop();
         });
+    });
+
+    document.querySelector('.speaker').addEventListener('click', function (e) {
+        if (this.classList.contains('mute')) {
+            audio.muted = false;
+            this.classList.remove('mute');
+        } else {
+            audio.muted = true;
+            this.classList.add('mute');
+        }
     });
 }
 
