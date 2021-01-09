@@ -402,8 +402,8 @@ function gameOver() {
     monster.heroHolder.add(hero.mesh);
     gsap.to(this, 1, { speed: 0 });
     gsap.to(camera.position, 3, { z: cameraPosGameOver, y: 60, x: -30 });
-    vaccine.mesh.visible = false;
-    obstacle.mesh.visible = false;
+    vaccine.mesh.visible = true;
+    obstacle.mesh.visible = true;
     clearInterval(levelInterval);
 }
 
