@@ -24,7 +24,7 @@ var malusClearColor = 0x8b0000;
 let malusClearAlpha = 0;
 
 // scene vars
-let sceneBackgroundColor = 0xf54040;
+let sceneBackgroundColor = [0xf54040, 0x0057d9, 0x997950, 0x0b6623];
 let floorRadius = 200;
 let initFogNear = 160;
 const outFogNear = 80;
@@ -53,7 +53,9 @@ function initScreenAnd3D() {
 
     // set global scene
     scene = new THREE.Scene();
-    scene.background = new THREE.Color(sceneBackgroundColor);
+    scene.background = new THREE.Color(
+        sceneBackgroundColor[Math.random() * sceneBackgroundColor.length],
+    );
     scene.fog = new THREE.Fog(0xaaaaaa, initFogNear, 350);
 
     // set global camera
@@ -197,6 +199,10 @@ function updateLevel() {
         if (state.speed >= state.maxSpeed) return;
         state.level++;
         state.speed += 2;
+
+        scene.background = new THREE.Color(
+            sceneBackgroundColor[Math.floor(state.distance / 250) % 4],
+        );
     }
 }
 
@@ -456,13 +462,9 @@ function initListeners() {
     document.addEventListener('keydown', function (event) {
         if (event.key === 'Escape') {
             handleEscape();
-        }
-
-        if ([' ', 'Enter', 'ArrowUp', 'w'].includes(event.key)) {
+        } else if ([' ', 'Enter', 'ArrowUp', 'w'].includes(event.key)) {
             handleMouseDown(event);
-        }
-
-        if (event.key === 'm') {
+        } else if (event.key === 'm') {
             handleMuteSound(event);
         }
     });
@@ -649,7 +651,9 @@ function handleVisibilityChange() {
         if (state.gameStatus === 'play') {
             handleEscape();
         }
+        audio.pause();
     } else {
         // the page is visible
+        audio.play();
     }
 }
