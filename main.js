@@ -15,7 +15,7 @@ const audio = new Audio(
     'https://drive.google.com/file/d/13dP8QP50JFN1L9WLDgODzmvjMf9er933/view?usp=sharing',
 );
 let monsterAcceleration = 0.004;
-let malusClearColor = 0x000000;
+var malusClearColor = 0x8b0000;
 let malusClearAlpha = 0;
 
 // scene vars
@@ -262,8 +262,10 @@ function getMalus() {
         }
     });
     //
+    console.log(window)
     state.monsterPosTarget -= .04;
-    TweenMax.from(this, .5, {
+    // renderer.setClearColor(malusClearColor, malusClearAlpha);
+    gsap.from(window, .5, {
         malusClearAlpha: .5, onUpdate: function () {
             renderer.setClearColor(malusClearColor, malusClearAlpha);
         }
@@ -394,10 +396,7 @@ function init() {
     if (state.gameStatus != 'beginning') {
         resetGameDefault();
     } else {
-        console.log("masuk sini");
-        state.gameStatus = 'play';
         homePage();
-        console.log ("STATE = " ,state.gameStatus)
     }
     loop();
 }
@@ -513,11 +512,11 @@ function handleMouseDown(event) {
 
 function homePage() {
     fieldHomePage.className = 'show';
-    state.gameStatus = 'play';
+    state.gameStatus = 'homePage';
     monster.sit();
     hero.hang();
     monster.heroHolder.add(hero.mesh);
-    gsap.to(this, 1, { speed: 0 });
+    gsap.to(window, 1, { speed: 0 });
     gsap.to(camera.position, 3, { z: cameraPosGameOver, y: 60, x: -30 });
     vaccine.mesh.visible = true;
     obstacle.mesh.visible = true;
@@ -531,7 +530,7 @@ function gameOver() {
     monster.sit();
     hero.hang();
     monster.heroHolder.add(hero.mesh);
-    gsap.to(this, 1, { speed: 0 });
+    gsap.to(window, 1, { speed: 0 });
     gsap.to(camera.position, 3, { z: cameraPosGameOver, y: 60, x: -30 });
     vaccine.mesh.visible = false;
     obstacle.mesh.visible = false;
