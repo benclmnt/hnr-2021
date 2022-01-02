@@ -1,4 +1,4 @@
-import * as THREE from 'https://unpkg.com/three/build/three.module.js';
+import * as THREE from 'https://unpkg.com/three@0.123.0/build/three.min.js';
 import * as Material from './materials.js';
 import state from './gameState.js';
 
