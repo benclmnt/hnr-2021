@@ -1,4 +1,4 @@
-import * as THREE from 'https://unpkg.com/three/build/three.module.js';
+import * as THREE from 'https://unpkg.com/three@0.123.0/build/three.module.js';
 import { shadowLight } from './lights.js';
 import floor from './floor.js';
 import BonusParticles from './bonusParticles.js';

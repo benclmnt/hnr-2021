@@ -1,4 +1,4 @@
-import * as THREE from 'https://unpkg.com/three/build/three.module.js';
+import * as THREE from 'https://unpkg.com/three@0.123.0/build/three.module.js';
 import * as Colors from './colors.js';
 
 const floorRadius = 200;
